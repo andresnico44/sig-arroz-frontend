@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Maximize, Plus, Tractor, LogOut, Loader, Search, X } from 'lucide-react';
+import { MapPin, Maximize, Plus, Tractor, LogOut, Loader, Search, X, Pencil, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
@@ -15,6 +15,17 @@ export default function Fincas() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [nuevaFinca, setNuevaFinca] = useState({
+    nombre: '',
+    ubicacion_departamento: '',
+    ubicacion_municipio: '',
+    area_total_ha: '',
+    productor_id: ''
+  });
+
+  // Estado para el modal de edición de finca
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingFinca, setEditingFinca] = useState({
+    id: '',
     nombre: '',
     ubicacion_departamento: '',
     ubicacion_municipio: '',
@@ -98,6 +109,59 @@ export default function Fincas() {
       alert('Error al crear la finca. Revisa que el área sea mayor a 0 e intenta nuevamente.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleOpenEditModal = (finca) => {
+    setEditingFinca({
+      id: finca.id,
+      nombre: finca.nombre,
+      ubicacion_departamento: finca.ubicacion_departamento,
+      ubicacion_municipio: finca.ubicacion_municipio,
+      area_total_ha: finca.area_total_ha,
+      productor_id: finca.productor || ''
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditFinca = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const response = await axios.put(`${API_BASE_URL}/api/fincas/${editingFinca.id}/`, {
+        ...editingFinca,
+        area_total_ha: parseFloat(editingFinca.area_total_ha)
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Actualizar reactivamente en la lista
+      setFincas(fincas.map(f => f.id === editingFinca.id ? response.data : f));
+      setIsEditModalOpen(false);
+    } catch (err) {
+      console.error("Error al editar finca:", err.response?.data);
+      alert('Error al actualizar la finca. Revisa que el área sea mayor a 0 e intenta nuevamente.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteFinca = async (finca) => {
+    const confirmacion = window.confirm(`⚠️ ADVERTENCIA DE SEGURIDAD EXTREMA:
+¿Estás completamente seguro de que deseas eliminar la finca "${finca.nombre}"?
+
+Esta acción eliminará permanentemente la finca y TODOS sus lotes, análisis de suelo y ciclos de cultivo asociados de forma irreversible. Esta acción no se puede deshacer.`);
+
+    if (!confirmacion) return;
+
+    try {
+      await axios.delete(`${API_BASE_URL}/api/fincas/${finca.id}/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setFincas(fincas.filter(f => f.id !== finca.id));
+    } catch (err) {
+      console.error("Error al eliminar finca:", err.response?.data);
+      alert('Error al intentar eliminar la finca. Verifica tus permisos de red.');
     }
   };
 
@@ -193,7 +257,33 @@ export default function Fincas() {
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-rice-emerald/10 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
                 
-                <h3 className="text-xl font-bold text-gray-900 mb-4 pr-8">{finca.nombre}</h3>
+                {/* Botones de acción con control de accesos RBAC y parada de propagación */}
+                {rol !== 'TECNICO' && (
+                  <div className="absolute top-4 right-4 flex gap-2 z-20">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenEditModal(finca);
+                      }}
+                      className="p-2 bg-white border border-gray-100 text-gray-500 hover:text-blue-600 rounded-xl hover:shadow-md transition-all shadow-sm flex items-center justify-center"
+                      title="Editar Finca"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFinca(finca);
+                      }}
+                      className="p-2 bg-white border border-gray-100 text-gray-500 hover:text-red-600 rounded-xl hover:shadow-md transition-all shadow-sm flex items-center justify-center"
+                      title="Eliminar Finca"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                
+                <h3 className="text-xl font-bold text-gray-900 mb-4 pr-16">{finca.nombre}</h3>
                 
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
@@ -345,6 +435,115 @@ export default function Fincas() {
                     className="flex-1 px-4 py-3 text-white font-bold bg-rice-green hover:bg-[#154224] rounded-xl shadow-lg shadow-rice-green/30 transition-all flex justify-center items-center gap-2"
                   >
                     {saving ? <><Loader className="w-5 h-5 animate-spin" /> Guardando</> : 'Registrar Finca'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Modal Editar Finca */}
+      <AnimatePresence>
+        {isEditModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
+              onClick={() => setIsEditModalOpen(false)}
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white w-full max-w-lg rounded-3xl shadow-2xl relative z-10 overflow-hidden"
+            >
+              <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 className="text-xl font-bold text-gray-900">Editar Finca</h3>
+                <button onClick={() => setIsEditModalOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleEditFinca} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Nombre de la Finca</label>
+                  <input 
+                    type="text" required
+                    value={editingFinca.nombre}
+                    onChange={(e) => setEditingFinca({...editingFinca, nombre: e.target.value})}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald focus:border-transparent outline-none transition-all font-medium text-gray-900"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Departamento</label>
+                    <input 
+                      type="text" required
+                      value={editingFinca.ubicacion_departamento}
+                      onChange={(e) => setEditingFinca({...editingFinca, ubicacion_departamento: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Municipio</label>
+                    <input 
+                      type="text" required
+                      value={editingFinca.ubicacion_municipio}
+                      onChange={(e) => setEditingFinca({...editingFinca, ubicacion_municipio: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Área Total (Hectáreas)</label>
+                  <input 
+                    type="number" step="0.01" min="0.1" required
+                    value={editingFinca.area_total_ha}
+                    onChange={(e) => setEditingFinca({...editingFinca, area_total_ha: e.target.value})}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+                  />
+                </div>
+
+                {rol === 'ADMIN' && (
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                      Asignar al Productor Propietario <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      required
+                      value={editingFinca.productor_id}
+                      onChange={(e) => setEditingFinca({...editingFinca, productor_id: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald focus:border-transparent outline-none transition-all font-medium text-gray-900"
+                    >
+                      <option value="" disabled>Seleccione un Productor</option>
+                      {productores.map(prod => (
+                        <option key={prod.id} value={prod.id}>
+                          {prod.first_name} {prod.last_name} ({prod.email})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="mt-8 flex gap-3 pt-4 border-t border-gray-100">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="flex-1 px-4 py-3 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={saving}
+                    className="flex-1 px-4 py-3 text-white font-bold bg-rice-green hover:bg-[#154224] rounded-xl shadow-lg shadow-rice-green/30 transition-all flex justify-center items-center gap-2"
+                  >
+                    {saving ? <><Loader className="w-5 h-5 animate-spin" /> Guardando</> : 'Guardar Cambios'}
                   </button>
                 </div>
               </form>

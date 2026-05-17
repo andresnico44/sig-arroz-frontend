@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Maximize, Plus, Tractor, LogOut, Loader, ArrowLeft, Layers, Compass, Droplet, Activity, X } from 'lucide-react';
+import { MapPin, Maximize, Plus, Tractor, LogOut, Loader, ArrowLeft, Layers, Compass, Droplet, Activity, X, Pencil, Trash2 } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
@@ -20,6 +20,19 @@ export default function Lotes() {
   const [saving, setSaving] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [nuevoLote, setNuevoLote] = useState({
+    nombre: '',
+    area_hectareas: '',
+    tipo_suelo: 'FRANCO',
+    sistema_produccion: 'RIEGO',
+    latitud: '',
+    longitud: '',
+    estado: 'ACTIVO'
+  });
+
+  // Estado para el modal de edición de lote
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingLote, setEditingLote] = useState({
+    id: '',
     nombre: '',
     area_hectareas: '',
     tipo_suelo: 'FRANCO',
@@ -138,6 +151,87 @@ export default function Lotes() {
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleOpenEditLoteModal = (lote) => {
+    setEditingLote({
+      id: lote.id,
+      nombre: lote.nombre,
+      area_hectareas: lote.area_hectareas,
+      tipo_suelo: lote.tipo_suelo,
+      sistema_produccion: lote.sistema_produccion,
+      latitud: lote.latitud || '',
+      longitud: lote.longitud || '',
+      estado: lote.estado
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditLote = async (e) => {
+    e.preventDefault();
+    setValidationError('');
+
+    const areaInput = parseFloat(editingLote.area_hectareas);
+    const loteOriginal = lotes.find(l => l.id === editingLote.id);
+    const areaOriginal = loteOriginal ? parseFloat(loteOriginal.area_hectareas) : 0;
+    const maxAreaPermitida = areaDisponible + areaOriginal;
+
+    // Validación cruzada matemática ultra-precisa de áreas
+    if (areaInput > maxAreaPermitida) {
+      setValidationError(
+        `No puedes actualizar el lote. El área ingresada (${areaInput} ha) supera el límite máximo disponible para este lote (${maxAreaPermitida.toFixed(2)} ha).`
+      );
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const payload = {
+        finca: parseInt(fincaId),
+        nombre: editingLote.nombre,
+        area_hectareas: areaInput,
+        tipo_suelo: editingLote.tipo_suelo,
+        sistema_produccion: editingLote.sistema_produccion,
+        latitud: editingLote.latitud ? parseFloat(editingLote.latitud) : null,
+        longitud: editingLote.longitud ? parseFloat(editingLote.longitud) : null,
+        estado: editingLote.estado
+      };
+
+      const response = await axios.put(`${API_BASE_URL}/api/lotes/${editingLote.id}/`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setLotes(lotes.map(l => l.id === editingLote.id ? response.data : l));
+      setIsEditModalOpen(false);
+    } catch (err) {
+      console.error("Error al editar lote:", err.response?.data);
+      if (err.response?.data?.area_hectareas) {
+        setValidationError(err.response.data.area_hectareas[0]);
+      } else {
+        setValidationError('Ocurrió un error al actualizar el lote en el servidor.');
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteLote = async (lote) => {
+    const confirmacion = window.confirm(`⚠️ ADVERTENCIA DE ELIMINACIÓN DE LOTE:
+¿Estás completamente seguro de que deseas eliminar el lote "${lote.nombre}"?
+
+Esta acción eliminará de forma permanente este lote y TODOS sus análisis de suelo y ciclos de cultivo asociados de forma irreversible. Esta acción no se puede deshacer.`);
+
+    if (!confirmacion) return;
+
+    try {
+      await axios.delete(`${API_BASE_URL}/api/lotes/${lote.id}/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setLotes(lotes.filter(l => l.id !== lote.id));
+    } catch (err) {
+      console.error("Error al eliminar lote:", err.response?.data);
+      alert('Error al intentar eliminar el lote. Verifica tus permisos de red.');
     }
   };
 
@@ -330,6 +424,32 @@ export default function Lotes() {
 
                 <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
                   <span className="text-sm font-bold text-rice-green group-hover:underline cursor-pointer">Ver Ciclos de Cultivo →</span>
+                  
+                  {/* Botones de acción en el Footer con control RBAC y parada de propagación */}
+                  {rol !== 'TECNICO' && (
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEditLoteModal(lote);
+                        }}
+                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center"
+                        title="Editar Lote"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteLote(lote);
+                        }}
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center"
+                        title="Eliminar Lote"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -468,6 +588,142 @@ export default function Lotes() {
                     className="flex-1 px-4 py-3 text-white font-bold bg-rice-green hover:bg-[#154224] rounded-xl shadow-lg shadow-rice-green/30 transition-all flex justify-center items-center gap-2"
                   >
                     {saving ? <><Loader className="w-5 h-5 animate-spin" /> Guardando</> : 'Registrar Lote'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Modal Editar Lote */}
+      <AnimatePresence>
+        {isEditModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
+              onClick={() => setIsEditModalOpen(false)}
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white w-full max-w-lg rounded-3xl shadow-2xl relative z-10 overflow-hidden"
+            >
+              <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 className="text-xl font-bold text-gray-900">Editar Lote</h3>
+                <button onClick={() => setIsEditModalOpen(false)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {validationError && (
+                <div className="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium">
+                  {validationError}
+                </div>
+              )}
+
+              <form onSubmit={handleEditLote} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Nombre del Lote</label>
+                  <input 
+                    type="text" required
+                    value={editingLote.nombre}
+                    onChange={(e) => setEditingLote({...editingLote, nombre: e.target.value})}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald focus:border-transparent outline-none transition-all font-medium text-gray-900"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Área (Hectáreas)</label>
+                    <input 
+                      type="number" step="0.01" min="0.1" required
+                      value={editingLote.area_hectareas}
+                      onChange={(e) => setEditingLote({...editingLote, area_hectareas: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Estado</label>
+                    <select
+                      value={editingLote.estado}
+                      onChange={(e) => setEditingLote({...editingLote, estado: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
+                    >
+                      <option value="ACTIVO">Disponible</option>
+                      <option value="PREPARACION">En Preparación</option>
+                      <option value="EN_CICLO">En Ciclo</option>
+                      <option value="COSECHADO">Cosechado</option>
+                      <option value="DESCANSO">En Descanso</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Tipo de Suelo</label>
+                    <select
+                      value={editingLote.tipo_suelo}
+                      onChange={(e) => setEditingLote({...editingLote, tipo_suelo: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
+                    >
+                      <option value="FRANCO">Franco</option>
+                      <option value="ARCILLOSO">Arcilloso</option>
+                      <option value="ARENOSO">Arenoso</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Sistema de Producción</label>
+                    <select
+                      value={editingLote.sistema_produccion}
+                      onChange={(e) => setEditingLote({...editingLote, sistema_produccion: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
+                    >
+                      <option value="RIEGO">Riego</option>
+                      <option value="SECANO">Secano</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 border-t border-gray-50 pt-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Latitud GPS (Opcional)</label>
+                    <input 
+                      type="number" step="0.000001"
+                      value={editingLote.latitud}
+                      onChange={(e) => setEditingLote({...editingLote, latitud: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Longitud GPS (Opcional)</label>
+                    <input 
+                      type="number" step="0.000001"
+                      value={editingLote.longitud}
+                      onChange={(e) => setEditingLote({...editingLote, longitud: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-8 flex gap-3 pt-4 border-t border-gray-100">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="flex-1 px-4 py-3 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={saving}
+                    className="flex-1 px-4 py-3 text-white font-bold bg-rice-green hover:bg-[#154224] rounded-xl shadow-lg shadow-rice-green/30 transition-all flex justify-center items-center gap-2"
+                  >
+                    {saving ? <><Loader className="w-5 h-5 animate-spin" /> Guardando</> : 'Guardar Cambios'}
                   </button>
                 </div>
               </form>
