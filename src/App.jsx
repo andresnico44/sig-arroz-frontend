@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPasswordConfirm from './pages/ResetPasswordConfirm';
+import Fincas from './pages/Fincas';
 
 function App() {
   return (
@@ -15,10 +16,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPasswordConfirm />} />
         
-        {/* Redirección por defecto */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        
-        {/* Las futuras rutas privadas de Fincas, Lotes y Ciclos irán aquí protegidas por rol */}
+        {/* Rutas Privadas y Dashboard (Sprint 2) */}
+        <Route path="/" element={<Fincas />} />
       </Routes>
     </BrowserRouter>
   );
