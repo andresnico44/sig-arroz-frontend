@@ -169,6 +169,7 @@ export default function Fincas() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
+                onClick={() => navigate(`/fincas/${finca.id}/lotes`, { state: { finca } })}
                 className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm cursor-pointer transition-all duration-300 relative overflow-hidden group"
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-rice-emerald/10 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
