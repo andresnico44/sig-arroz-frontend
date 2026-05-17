@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, FlaskConical, CalendarClock, Plus, X, Loader, Tractor, LogOut, FileText, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, FlaskConical, CalendarClock, Plus, X, Loader, Tractor, LogOut, FileText, CheckCircle2, Info } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
@@ -40,8 +40,8 @@ export default function LoteDetalle() {
     ph: '',
     materia_organica_porcentaje: '',
     fosforo_ppm: '',
-    potasio_ppm: '',
-    textura_suelo: 'FRANCO',
+    potasio_meq: '',
+    textura: 'FRANCO',
     laboratorio: ''
   });
 
@@ -109,18 +109,19 @@ export default function LoteDetalle() {
         ph: parseFloat(nuevoAnalisis.ph),
         materia_organica_porcentaje: parseFloat(nuevoAnalisis.materia_organica_porcentaje),
         fosforo_ppm: parseFloat(nuevoAnalisis.fosforo_ppm),
-        potasio_ppm: parseFloat(nuevoAnalisis.potasio_ppm)
+        potasio_meq: parseFloat(nuevoAnalisis.potasio_meq)
       }, { headers: { Authorization: `Bearer ${token}` } });
       setAnalisisList([response.data, ...analisisList]);
       setIsModalAnalisisOpen(false);
       setNuevoAnalisis({
         fecha_muestreo: new Date().toISOString().split('T')[0],
-        ph: '', materia_organica_porcentaje: '', fosforo_ppm: '', potasio_ppm: '',
-        textura_suelo: 'FRANCO', laboratorio: ''
+        ph: '', materia_organica_porcentaje: '', fosforo_ppm: '', potasio_meq: '',
+        textura: 'FRANCO', laboratorio: ''
       });
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.ph?.[0] || 'Error al registrar el análisis de suelo.');
+      const errorMsg = err.response?.data ? JSON.stringify(err.response.data) : 'Error al registrar el análisis de suelo.';
+      alert(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -183,12 +184,27 @@ export default function LoteDetalle() {
           Volver a Lotes {fincaData ? `de ${fincaData.nombre}` : ''}
         </button>
 
-        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm mb-8 relative overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm mb-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 bg-rice-emerald/5 rounded-bl-full -mr-4 -mt-4"></div>
           <div className="relative z-10">
-            <span className="text-xs font-bold text-rice-emerald uppercase tracking-widest bg-rice-emerald/10 px-3 py-1 rounded-full">Gestión Interna de Lote</span>
-            <h1 className="text-3xl font-extrabold text-gray-900 mt-3 tracking-tight">Lote {loteData.nombre}</h1>
+            <span className="text-xs font-bold text-rice-emerald uppercase tracking-widest bg-rice-emerald/10 px-3 py-1 rounded-full">Gestión Interna de Parcela</span>
+            <h1 className="text-3xl font-extrabold text-gray-900 mt-3 tracking-tight">{loteData.nombre}</h1>
             {fincaData && <p className="text-gray-500 font-medium mt-1">Perteneciente a la finca {fincaData.nombre}</p>}
+          </div>
+        </div>
+
+        {/* Guía Rápida Visual */}
+        <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 mb-8 flex gap-4 shadow-sm">
+          <div className="text-blue-500 shrink-0 mt-0.5">
+            <Info className="w-6 h-6" />
+          </div>
+          <div>
+            <h4 className="font-bold text-blue-900 text-sm">Guía de Operación del Lote</h4>
+            <ol className="list-decimal list-inside text-sm text-blue-800/80 mt-1.5 space-y-1 font-medium">
+              <li><strong>Primer Paso:</strong> Dirígete a la pestaña <em>"Análisis de Suelos"</em> y registra el muestreo del laboratorio (Obligatorio).</li>
+              <li><strong>Segundo Paso:</strong> Una vez diagnosticado el suelo, ve a <em>"Ciclos Productivos"</em> e inicia un nuevo ciclo de siembra.</li>
+              <li><strong>Tercer Paso:</strong> A medida que el cultivo crezca, registra las tareas y el monitoreo diario en el ciclo activo.</li>
+            </ol>
           </div>
         </div>
 
@@ -228,7 +244,13 @@ export default function LoteDetalle() {
               {rol !== 'TECNICO' && (
                 <motion.button
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsModalCicloOpen(true)}
+                  onClick={() => {
+                    if (analisisList.length === 0) {
+                      alert("🛑 REGLA AGRONÓMICA: No puedes iniciar un Ciclo Productivo sin antes conocer el estado de la tierra. Por favor, registra primero un Análisis de Suelos en la otra pestaña.");
+                      return;
+                    }
+                    setIsModalCicloOpen(true);
+                  }}
                   className="bg-rice-green text-white px-4 py-2 rounded-xl font-semibold shadow-md shadow-rice-green/30 hover:bg-[#154224] transition-all flex items-center gap-2 text-sm"
                 >
                   <Plus className="w-4 h-4" /> Iniciar Nuevo Ciclo
@@ -312,9 +334,9 @@ export default function LoteDetalle() {
                     
                     <div className="grid grid-cols-2 gap-2 text-sm border-t border-gray-100 pt-3 mt-3">
                       <div><span className="text-gray-500 font-semibold">Materia Orgánica:</span> <span className="font-bold text-gray-900">{ana.materia_organica_porcentaje}%</span></div>
-                      <div><span className="text-gray-500 font-semibold">Textura:</span> <span className="font-bold text-gray-900 capitalize">{ana.textura_suelo.toLowerCase()}</span></div>
+                      <div><span className="text-gray-500 font-semibold">Textura:</span> <span className="font-bold text-gray-900 capitalize">{ana.textura?.toLowerCase() || 'Franco'}</span></div>
                       <div><span className="text-gray-500 font-semibold">Fósforo:</span> <span className="font-bold text-gray-900">{ana.fosforo_ppm} ppm</span></div>
-                      <div><span className="text-gray-500 font-semibold">Potasio:</span> <span className="font-bold text-gray-900">{ana.potasio_ppm} ppm</span></div>
+                      <div><span className="text-gray-500 font-semibold">Potasio:</span> <span className="font-bold text-gray-900">{ana.potasio_meq} meq/100g</span></div>
                     </div>
                     {ana.laboratorio && (
                       <p className="text-xs text-gray-400 mt-3 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Realizado por: {ana.laboratorio}</p>
@@ -395,12 +417,12 @@ export default function LoteDetalle() {
                     <input type="number" step="0.1" min="0" required value={nuevoAnalisis.fosforo_ppm} onChange={e => setNuevoAnalisis({...nuevoAnalisis, fosforo_ppm: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 15.0" />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Potasio (K) ppm</label>
-                    <input type="number" step="0.1" min="0" required value={nuevoAnalisis.potasio_ppm} onChange={e => setNuevoAnalisis({...nuevoAnalisis, potasio_ppm: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 120.0" />
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Potasio (K) meq/100g</label>
+                    <input type="number" step="0.1" min="0" required value={nuevoAnalisis.potasio_meq} onChange={e => setNuevoAnalisis({...nuevoAnalisis, potasio_meq: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 0.15" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Textura</label>
-                    <select value={nuevoAnalisis.textura_suelo} onChange={e => setNuevoAnalisis({...nuevoAnalisis, textura_suelo: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-700">
+                    <select value={nuevoAnalisis.textura} onChange={e => setNuevoAnalisis({...nuevoAnalisis, textura: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-700">
                       <option value="FRANCO">Franco</option>
                       <option value="ARCILLOSO">Arcilloso</option>
                       <option value="ARENOSO">Arenoso</option>

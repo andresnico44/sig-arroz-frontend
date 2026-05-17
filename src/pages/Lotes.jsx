@@ -295,7 +295,7 @@ export default function Lotes() {
                     {lote.nombre}
                   </h3>
                   <span className={`text-xxs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0 ${getEstadoBadge(lote.estado)}`}>
-                    {lote.estado}
+                    {lote.estado === 'ACTIVO' ? 'DISPONIBLE' : lote.estado === 'PREPARACION' ? 'EN PREPARACION' : lote.estado}
                   </span>
                 </div>
 
@@ -398,7 +398,7 @@ export default function Lotes() {
                       onChange={(e) => setNuevoLote({...nuevoLote, estado: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
                     >
-                      <option value="ACTIVO">Activo</option>
+                      <option value="ACTIVO">Disponible</option>
                       <option value="PREPARACION">En Preparación</option>
                       <option value="DESCANSO">En Descanso</option>
                     </select>
