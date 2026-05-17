@@ -6,6 +6,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPasswordConfirm from './pages/ResetPasswordConfirm';
 import Fincas from './pages/Fincas';
 import Lotes from './pages/Lotes'; // <-- Importar Lotes
+import LoteDetalle from './pages/LoteDetalle'; // <-- Importar LoteDetalle
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         {/* Rutas Privadas y Dashboard (Sprint 2) */}
         <Route path="/" element={<Fincas />} />
         <Route path="/fincas/:fincaId/lotes" element={<Lotes />} />
+        <Route path="/lotes/:loteId/gestion" element={<LoteDetalle />} />
       </Routes>
     </BrowserRouter>
   );

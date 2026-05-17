@@ -286,8 +286,9 @@ export default function Lotes() {
                 key={lote.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4 }}
-                className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm relative overflow-hidden group"
+                whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
+                onClick={() => navigate(`/lotes/${lote.id}/gestion`, { state: { lote, finca } })}
+                className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm relative overflow-hidden group cursor-pointer transition-all duration-300"
               >
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-gray-900 group-hover:text-rice-green transition-colors pr-2">

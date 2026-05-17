@@ -7,6 +7,7 @@ import { API_BASE_URL } from '../api';
 
 export default function Fincas() {
   const [fincas, setFincas] = useState([]);
+  const [productores, setProductores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
@@ -17,7 +18,8 @@ export default function Fincas() {
     nombre: '',
     ubicacion_departamento: '',
     ubicacion_municipio: '',
-    area_total_ha: ''
+    area_total_ha: '',
+    productor_id: ''
   });
 
   const navigate = useNavigate();
@@ -30,10 +32,27 @@ export default function Fincas() {
   useEffect(() => {
     if (!token) {
       navigate('/login');
-      return;
+    } else {
+      fetchFincas();
+      if (rol === 'ADMIN') {
+        fetchProductores();
+      }
     }
-    fetchFincas();
-  }, [navigate, token]);
+  }, [navigate, token, rol]);
+
+  const fetchProductores = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/productores/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setProductores(response.data);
+      if (response.data.length > 0) {
+        setNuevaFinca(prev => ({ ...prev, productor_id: response.data[0].id }));
+      }
+    } catch (error) {
+      console.error("Error cargando productores", error);
+    }
+  };
 
   const fetchFincas = async () => {
     try {
@@ -73,7 +92,7 @@ export default function Fincas() {
       // Añadir la nueva finca a la lista actual de forma reactiva (sin recargar)
       setFincas([response.data, ...fincas]);
       setIsModalOpen(false);
-      setNuevaFinca({ nombre: '', ubicacion_departamento: '', ubicacion_municipio: '', area_total_ha: '' });
+      setNuevaFinca({ nombre: '', ubicacion_departamento: '', ubicacion_municipio: '', area_total_ha: '', productor_id: '' });
     } catch (err) {
       console.error("Error al crear finca:", err.response?.data);
       alert('Error al crear la finca. Revisa que el área sea mayor a 0 e intenta nuevamente.');
@@ -198,7 +217,19 @@ export default function Fincas() {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
+                <div className="mt-4 pt-4 border-t border-gray-50/50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-rice-emerald/10 flex items-center justify-center">
+                      <span className="text-xxs font-bold text-rice-emerald">P</span>
+                    </div>
+                    <div>
+                      <p className="text-xxs text-gray-400 font-bold uppercase tracking-wider leading-none">A Cargo De</p>
+                      <p className="text-sm font-bold text-gray-700">{finca.productor_nombre || 'Productor'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-4 border-t border-gray-100 flex justify-between items-center">
                   <span className="text-sm font-bold text-rice-green group-hover:underline">Gestionar Lotes →</span>
                 </div>
               </motion.div>
@@ -277,6 +308,28 @@ export default function Fincas() {
                     placeholder="0.00"
                   />
                 </div>
+
+                {rol === 'ADMIN' && (
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                      Asignar al Productor Propietario <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      required
+                      value={nuevaFinca.productor_id}
+                      onChange={(e) => setNuevaFinca({...nuevaFinca, productor_id: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald focus:border-transparent outline-none transition-all font-medium text-gray-900"
+                    >
+                      <option value="" disabled>Seleccione un Productor</option>
+                      {productores.map(prod => (
+                        <option key={prod.id} value={prod.id}>
+                          {prod.first_name} {prod.last_name} ({prod.email})
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">Como administrador, debes indicar a quién le pertenece esta finca.</p>
+                  </div>
+                )}
 
                 <div className="mt-8 flex gap-3 pt-4 border-t border-gray-100">
                   <button 
