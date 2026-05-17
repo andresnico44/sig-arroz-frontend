@@ -19,6 +19,11 @@ export default function LoteDetalle() {
   const [ciclos, setCiclos] = useState([]);
   const [analisisList, setAnalisisList] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Reglas Agronómicas Calculadas (Suelo Apto para Arroz)
+  const ultimoAnalisis = analisisList && analisisList.length > 0 ? analisisList[0] : null;
+  const tieneAnalisis = analisisList && analisisList.length > 0;
+  const esSueloApto = ultimoAnalisis ? parseFloat(ultimoAnalisis.ph) >= 5.5 : false;
 
   // Modals
   const [isModalCicloOpen, setIsModalCicloOpen] = useState(false);
@@ -243,20 +248,44 @@ export default function LoteDetalle() {
               {/* MAGIA DE ROLES (RBAC): El botón está estrictamente prohibido y oculto para el TECNICO */}
               {rol !== 'TECNICO' && (
                 <motion.button
-                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                  whileHover={(!tieneAnalisis || !esSueloApto) ? {} : { scale: 1.02 }} 
+                  whileTap={(!tieneAnalisis || !esSueloApto) ? {} : { scale: 0.98 }}
                   onClick={() => {
-                    if (analisisList.length === 0) {
+                    if (!tieneAnalisis) {
                       alert("🛑 REGLA AGRONÓMICA: No puedes iniciar un Ciclo Productivo sin antes conocer el estado de la tierra. Por favor, registra primero un Análisis de Suelos en la otra pestaña.");
+                      return;
+                    }
+                    if (!esSueloApto) {
+                      alert(`🛑 REGLA AGRONÓMICA: El último análisis de suelo (${ultimoAnalisis.fecha_muestreo}) reporta un pH de ${Number(ultimoAnalisis.ph).toFixed(1)} (${ultimoAnalisis.interpretacion_ph}), lo cual es INADECUADO para el cultivo de arroz. Aplica cal de enmienda y registra un nuevo análisis corregido (pH >= 5.5) para desbloquear la siembra.`);
                       return;
                     }
                     setIsModalCicloOpen(true);
                   }}
-                  className="bg-rice-green text-white px-4 py-2 rounded-xl font-semibold shadow-md shadow-rice-green/30 hover:bg-[#154224] transition-all flex items-center gap-2 text-sm"
+                  className={`px-4 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-md ${
+                    (!tieneAnalisis || !esSueloApto) 
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none' 
+                      : 'bg-rice-green text-white shadow-rice-green/30 hover:bg-[#154224]'
+                  }`}
                 >
                   <Plus className="w-4 h-4" /> Iniciar Nuevo Ciclo
                 </motion.button>
               )}
             </div>
+
+            {tieneAnalisis && !esSueloApto && (
+              <div className="bg-red-50 border border-red-200 text-red-800 rounded-2xl p-5 mb-6 flex gap-4 shadow-sm">
+                <Info className="w-6 h-6 text-red-500 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-red-900 text-sm">Bloqueo de Calidad: Suelo Inadecuado</h4>
+                  <p className="text-sm text-red-800/80 mt-1.5 leading-relaxed font-medium">
+                    El último análisis de suelo ({ultimoAnalisis.fecha_muestreo}) reporta una acidez de <strong>pH {Number(ultimoAnalisis.ph).toFixed(1)} ({ultimoAnalisis.interpretacion_ph})</strong>, lo cual es inaceptable para cultivar arroz.
+                  </p>
+                  <p className="text-sm text-red-800 mt-2 font-bold flex items-center gap-1">
+                    💡 Acción: Debes realizar una enmienda caliza al terreno y registrar un nuevo análisis verificado (pH ≥ 5.5) para desbloquear la siembra.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {loading ? (
               <div className="flex justify-center py-10"><Loader className="animate-spin text-rice-green w-8 h-8" /></div>
