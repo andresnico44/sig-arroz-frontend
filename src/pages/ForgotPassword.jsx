@@ -3,6 +3,7 @@ import { Mail, ArrowLeft, CheckCircle, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../api';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ export default function ForgotPassword() {
 
     try {
       // Petición real al backend de Django
-      await axios.post('http://localhost:8000/api/password_reset/', {
+      await axios.post(`${API_BASE_URL}/api/password_reset/`, {
         email: email
       });
       setSubmitted(true);

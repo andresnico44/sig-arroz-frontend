@@ -3,6 +3,7 @@ import { Leaf, Lock, Mail, User, Briefcase, CheckCircle, Loader } from 'lucide-r
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../api';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ export default function Register() {
 
     try {
       // Petición real de registro a Django
-      await axios.post('http://localhost:8000/api/users/register/', formData);
+      await axios.post(`${API_BASE_URL}/api/users/register/`, formData);
       setSuccess(true);
       // Redirigir al login
       setTimeout(() => {
