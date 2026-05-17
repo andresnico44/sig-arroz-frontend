@@ -42,7 +42,20 @@ export default function ResetPasswordConfirm() {
       }, 3000);
     } catch (err) {
       console.error(err);
-      setError('El enlace de recuperación es inválido o ha expirado. Por favor, solicita uno nuevo.');
+      if (err.response && err.response.data) {
+        const data = err.response.data;
+        if (data.password) {
+          setError(data.password.join(' '));
+        } else if (data.token) {
+          setError('El token de recuperación es inválido, ha expirado o ya fue utilizado.');
+        } else if (data.detail) {
+          setError(data.detail);
+        } else {
+          setError('Error al restablecer la contraseña. Por favor, solicita un nuevo enlace.');
+        }
+      } else {
+        setError('No se pudo establecer conexión con el servidor. Inténtalo más tarde.');
+      }
     } finally {
       setLoading(false);
     }
