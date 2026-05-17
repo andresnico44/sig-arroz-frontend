@@ -3,6 +3,7 @@ import { Lock, CheckCircle, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../api';
 
 export default function ResetPasswordConfirm() {
   const [searchParams] = useSearchParams();
@@ -30,7 +31,7 @@ export default function ResetPasswordConfirm() {
 
     try {
       // Conectar con el endpoint real del backend en Django
-      await axios.post('http://localhost:8000/api/password_reset/confirm/', {
+      await axios.post(`${API_BASE_URL}/api/password_reset/confirm/`, {
         token: token,
         password: password
       });

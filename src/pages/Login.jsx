@@ -3,6 +3,7 @@ import { Leaf, Lock, Mail, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../api';
 
 export default function Login() {
   const [email, setEmail] = useState(''); // El input del correo electrónico
@@ -19,7 +20,7 @@ export default function Login() {
     try {
       // DRF SimpleJWT espera 'username' y 'password'.
       // Como guardamos el email como username en la DB, enviamos el 'email' en el campo 'username'.
-      const response = await axios.post('http://localhost:8000/api/token/', {
+      const response = await axios.post(`${API_BASE_URL}/api/token/`, {
         username: email,
         password: password
       });
