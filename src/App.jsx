@@ -9,6 +9,7 @@ import Fincas from './pages/Fincas';
 import Lotes from './pages/Lotes';
 import LoteDetalle from './pages/LoteDetalle';
 import CicloDetalle from './pages/CicloDetalle';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -21,8 +22,9 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPasswordConfirm />} />
         
-        {/* Rutas Privadas y Dashboard (Sprint 2) */}
+        {/* Rutas Privadas y Dashboard */}
         <Route path="/fincas" element={<Fincas />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/fincas/:fincaId/lotes" element={<Lotes />} />
         <Route path="/lotes/:loteId/gestion" element={<LoteDetalle />} />
         <Route path="/lotes/:loteId/ciclos/:cicloId/gestion" element={<CicloDetalle />} />
