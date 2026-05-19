@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -14,13 +15,14 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Rutas Públicas y de Autenticación */}
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPasswordConfirm />} />
         
         {/* Rutas Privadas y Dashboard (Sprint 2) */}
-        <Route path="/" element={<Fincas />} />
+        <Route path="/fincas" element={<Fincas />} />
         <Route path="/fincas/:fincaId/lotes" element={<Lotes />} />
         <Route path="/lotes/:loteId/gestion" element={<LoteDetalle />} />
         <Route path="/lotes/:loteId/ciclos/:cicloId/gestion" element={<CicloDetalle />} />
