@@ -5,8 +5,9 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPasswordConfirm from './pages/ResetPasswordConfirm';
 import Fincas from './pages/Fincas';
-import Lotes from './pages/Lotes'; // <-- Importar Lotes
-import LoteDetalle from './pages/LoteDetalle'; // <-- Importar LoteDetalle
+import Lotes from './pages/Lotes';
+import LoteDetalle from './pages/LoteDetalle';
+import CicloDetalle from './pages/CicloDetalle';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/" element={<Fincas />} />
         <Route path="/fincas/:fincaId/lotes" element={<Lotes />} />
         <Route path="/lotes/:loteId/gestion" element={<LoteDetalle />} />
+        <Route path="/lotes/:loteId/ciclos/:cicloId/gestion" element={<CicloDetalle />} />
       </Routes>
     </BrowserRouter>
   );

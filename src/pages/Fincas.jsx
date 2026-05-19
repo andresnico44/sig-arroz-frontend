@@ -93,10 +93,18 @@ export default function Fincas() {
     e.preventDefault();
     setSaving(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/fincas/`, {
-        ...nuevaFinca,
+      const payload = {
+        nombre: nuevaFinca.nombre,
+        ubicacion_departamento: nuevaFinca.ubicacion_departamento,
+        ubicacion_municipio: nuevaFinca.ubicacion_municipio,
         area_total_ha: parseFloat(nuevaFinca.area_total_ha)
-      }, {
+      };
+
+      if (rol === 'ADMIN' && nuevaFinca.productor_id) {
+        payload.productor_id = parseInt(nuevaFinca.productor_id);
+      }
+
+      const response = await axios.post(`${API_BASE_URL}/api/fincas/`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -106,7 +114,8 @@ export default function Fincas() {
       setNuevaFinca({ nombre: '', ubicacion_departamento: '', ubicacion_municipio: '', area_total_ha: '', productor_id: '' });
     } catch (err) {
       console.error("Error al crear finca:", err.response?.data);
-      alert('Error al crear la finca. Revisa que el área sea mayor a 0 e intenta nuevamente.');
+      const backendError = err.response?.data ? JSON.stringify(err.response.data) : '';
+      alert(`Error al crear la finca. ${backendError || 'Revisa que el área sea mayor a 0 e intenta nuevamente.'}`);
     } finally {
       setSaving(false);
     }
@@ -128,10 +137,18 @@ export default function Fincas() {
     e.preventDefault();
     setSaving(true);
     try {
-      const response = await axios.put(`${API_BASE_URL}/api/fincas/${editingFinca.id}/`, {
-        ...editingFinca,
+      const payload = {
+        nombre: editingFinca.nombre,
+        ubicacion_departamento: editingFinca.ubicacion_departamento,
+        ubicacion_municipio: editingFinca.ubicacion_municipio,
         area_total_ha: parseFloat(editingFinca.area_total_ha)
-      }, {
+      };
+
+      if (rol === 'ADMIN' && editingFinca.productor_id) {
+        payload.productor_id = parseInt(editingFinca.productor_id);
+      }
+
+      const response = await axios.put(`${API_BASE_URL}/api/fincas/${editingFinca.id}/`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -140,7 +157,8 @@ export default function Fincas() {
       setIsEditModalOpen(false);
     } catch (err) {
       console.error("Error al editar finca:", err.response?.data);
-      alert('Error al actualizar la finca. Revisa que el área sea mayor a 0 e intenta nuevamente.');
+      const backendError = err.response?.data ? JSON.stringify(err.response.data) : '';
+      alert(`Error al actualizar la finca. ${backendError || 'Revisa que el área sea mayor a 0 e intenta nuevamente.'}`);
     } finally {
       setSaving(false);
     }

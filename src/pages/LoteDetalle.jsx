@@ -13,7 +13,7 @@ export default function LoteDetalle() {
   const loteData = location.state?.lote || { nombre: 'Cargando Lote...' };
   const fincaData = location.state?.finca || null;
 
-  const [activeTab, setActiveTab] = useState('ciclos'); // 'ciclos' | 'analisis'
+  const [activeTab, setActiveTab] = useState('analisis'); // 'analisis' | 'ciclos'
   
   // Data states
   const [ciclos, setCiclos] = useState([]);
@@ -216,21 +216,21 @@ export default function LoteDetalle() {
         {/* TABS NAVIGATION */}
         <div className="flex border-b border-gray-200 mb-8">
           <button 
-            onClick={() => setActiveTab('ciclos')}
-            className={`flex items-center gap-2 px-6 py-4 font-bold text-sm transition-colors relative ${activeTab === 'ciclos' ? 'text-rice-green' : 'text-gray-500 hover:text-gray-700'}`}
-          >
-            <CalendarClock className="w-5 h-5" /> Ciclos Productivos
-            {activeTab === 'ciclos' && (
-              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-rice-green" />
-            )}
-          </button>
-          
-          <button 
             onClick={() => setActiveTab('analisis')}
             className={`flex items-center gap-2 px-6 py-4 font-bold text-sm transition-colors relative ${activeTab === 'analisis' ? 'text-rice-green' : 'text-gray-500 hover:text-gray-700'}`}
           >
             <FlaskConical className="w-5 h-5" /> Análisis de Suelos
             {activeTab === 'analisis' && (
+              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-rice-green" />
+            )}
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('ciclos')}
+            className={`flex items-center gap-2 px-6 py-4 font-bold text-sm transition-colors relative ${activeTab === 'ciclos' ? 'text-rice-green' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            <CalendarClock className="w-5 h-5" /> Ciclos Productivos
+            {activeTab === 'ciclos' && (
               <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-rice-green" />
             )}
           </button>
@@ -311,7 +311,12 @@ export default function LoteDetalle() {
                       Presupuesto: <span className="text-rice-emerald">{formatCurrency(ciclo.presupuesto_estimado)}</span>
                     </p>
                     <div className="pt-3 border-t border-gray-100 flex gap-3 text-sm">
-                      <button className="text-rice-green font-bold hover:underline">Ver Tareas →</button>
+                      <button 
+                        onClick={() => navigate(`/lotes/${loteId}/ciclos/${ciclo.id}/gestion`, { state: { lote: loteData, finca: fincaData, ciclo } })}
+                        className="text-rice-green font-bold hover:underline flex items-center gap-1"
+                      >
+                        Ver Tareas →
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -338,6 +343,29 @@ export default function LoteDetalle() {
                 <Plus className="w-4 h-4" /> Registrar Análisis
               </motion.button>
             </div>
+
+            {tieneAnalisis && esSueloApto && rol !== 'TECNICO' && (
+              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
+                <div className="flex gap-4">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-emerald-900 text-sm">¡Terreno Apto para Cultivo!</h4>
+                    <p className="text-sm text-emerald-800/80 mt-1 font-medium">
+                      El último análisis reporta un pH de {Number(ultimoAnalisis.ph).toFixed(1)} ({ultimoAnalisis.interpretacion_ph}). Ya puedes planificar un ciclo productivo en este lote.
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    setActiveTab('ciclos');
+                    setIsModalCicloOpen(true);
+                  }}
+                  className="bg-rice-green text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-rice-green/20 hover:bg-[#154224] transition-colors shrink-0 flex items-center gap-1.5"
+                >
+                  Iniciar Ciclo Productivo →
+                </button>
+              </div>
+            )}
 
             {loading ? (
               <div className="flex justify-center py-10"><Loader className="animate-spin text-rice-green w-8 h-8" /></div>
@@ -435,19 +463,19 @@ export default function LoteDetalle() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Nivel de pH</label>
-                    <input type="number" step="0.1" min="0" max="14" required value={nuevoAnalisis.ph} onChange={e => setNuevoAnalisis({...nuevoAnalisis, ph: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 6.5" />
+                    <input type="number" step="any" min="0" max="14" required value={nuevoAnalisis.ph} onChange={e => setNuevoAnalisis({...nuevoAnalisis, ph: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 6.5" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Materia Orgánica (%)</label>
-                    <input type="number" step="0.1" min="0" required value={nuevoAnalisis.materia_organica_porcentaje} onChange={e => setNuevoAnalisis({...nuevoAnalisis, materia_organica_porcentaje: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 3.2" />
+                    <input type="number" step="any" min="0" required value={nuevoAnalisis.materia_organica_porcentaje} onChange={e => setNuevoAnalisis({...nuevoAnalisis, materia_organica_porcentaje: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 3.2" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Fósforo (P) ppm</label>
-                    <input type="number" step="0.1" min="0" required value={nuevoAnalisis.fosforo_ppm} onChange={e => setNuevoAnalisis({...nuevoAnalisis, fosforo_ppm: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 15.0" />
+                    <input type="number" step="any" min="0" required value={nuevoAnalisis.fosforo_ppm} onChange={e => setNuevoAnalisis({...nuevoAnalisis, fosforo_ppm: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 15.0" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Potasio (K) meq/100g</label>
-                    <input type="number" step="0.1" min="0" required value={nuevoAnalisis.potasio_meq} onChange={e => setNuevoAnalisis({...nuevoAnalisis, potasio_meq: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 0.15" />
+                    <input type="number" step="any" min="0" required value={nuevoAnalisis.potasio_meq} onChange={e => setNuevoAnalisis({...nuevoAnalisis, potasio_meq: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 0.15" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Textura</label>
