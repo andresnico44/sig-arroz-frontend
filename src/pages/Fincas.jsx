@@ -244,6 +244,15 @@ Esta acción eliminará permanentemente la finca y TODOS sus lotes, análisis de
           </div>
 
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/historial-produccion')}
+              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold transition-all shadow-sm"
+              title="Ver Historial de Rendimientos"
+            >
+              <TrendingUp className="w-4 h-4 text-emerald-700" />
+              <span>Rendimientos</span>
+            </button>
+
             <div className="text-right hidden sm:block">
               <p className="text-sm font-black text-gray-900">{username || 'Productor'}</p>
               <p className="text-2xs font-extrabold text-[#D4AF37] uppercase tracking-wider bg-[#1E5631] px-2 py-0.5 rounded shadow-sm">Rol: {rol}</p>
