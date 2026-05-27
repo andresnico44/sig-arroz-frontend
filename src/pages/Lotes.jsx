@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MapPin, Maximize, Plus, Tractor, LogOut, Loader, ArrowLeft, 
-  Layers, Compass, Droplet, Activity, X, Pencil, Trash2, Search, Filter 
+  Layers, Compass, Droplet, Activity, X, Pencil, Trash2, Search, Filter, TrendingUp 
 } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -340,6 +340,15 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
           </div>
           
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/historial-produccion', { state: { fincaId } })}
+              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold transition-all shadow-sm"
+              title="Ver Historial de Rendimientos"
+            >
+              <TrendingUp className="w-4 h-4 text-emerald-700" />
+              <span>Rendimientos</span>
+            </button>
+
             <div className="text-right hidden sm:block">
               <p className="text-sm font-black text-gray-800">{username}</p>
               <p className="text-2xs font-extrabold text-[#b8952b] uppercase tracking-wider">{rol}</p>

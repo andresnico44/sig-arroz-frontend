@@ -10,6 +10,7 @@ import Lotes from './pages/Lotes';
 import LoteDetalle from './pages/LoteDetalle';
 import CicloDetalle from './pages/CicloDetalle';
 import AdminDashboard from './pages/AdminDashboard';
+import HistorialProduccion from './pages/HistorialProduccion';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/fincas/:fincaId/lotes" element={<Lotes />} />
         <Route path="/lotes/:loteId/gestion" element={<LoteDetalle />} />
         <Route path="/lotes/:loteId/ciclos/:cicloId/gestion" element={<CicloDetalle />} />
+        <Route path="/historial-produccion" element={<HistorialProduccion />} />
       </Routes>
     </BrowserRouter>
   );
