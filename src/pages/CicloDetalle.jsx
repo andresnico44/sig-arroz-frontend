@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, Tractor, Sprout, CalendarDays, Plus, X, Loader, LogOut, 
   CheckCircle2, Clock, ShieldAlert, Droplet, Coins, MapPin, Sparkles, 
-  AlertTriangle, Info, RefreshCw 
+  AlertTriangle, Info, RefreshCw, Wheat
 } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -35,6 +35,9 @@ export default function CicloDetalle() {
   const [costos, setCostos] = useState([]);
   const [offlineMonitoreos, setOfflineMonitoreos] = useState([]);
 
+  // Sprint 4 States
+  const [cosecha, setCosecha] = useState(null);
+
   // Modals
   const [isModalPrepOpen, setIsModalPrepOpen] = useState(false);
   const [isModalFenoOpen, setIsModalFenoOpen] = useState(false);
@@ -43,6 +46,15 @@ export default function CicloDetalle() {
   const [isModalFertilizacionOpen, setIsModalFertilizacionOpen] = useState(false);
   const [isModalRiegoOpen, setIsModalRiegoOpen] = useState(false);
   const [isModalCostoOpen, setIsModalCostoOpen] = useState(false);
+  const [isModalCosechaOpen, setIsModalCosechaOpen] = useState(false);
+
+  // Toast State
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   // Forms
   const [nuevaPrep, setNuevaPrep] = useState({
@@ -120,6 +132,14 @@ export default function CicloDetalle() {
     monto_total: ''
   });
 
+  const [nuevaCosecha, setNuevaCosecha] = useState({
+    fecha: new Date().toISOString().split('T')[0],
+    produccion_obtenida_kg: '',
+    humedad_grano_porcentaje: '',
+    impurezas_porcentaje: '0',
+    condiciones_cosecha: ''
+  });
+
   const username = localStorage.getItem('username');
   const rol = localStorage.getItem('rol');
   const token = localStorage.getItem('token');
@@ -145,7 +165,7 @@ export default function CicloDetalle() {
     try {
       const [
         resPrep, resSiembra, resFeno, resMonitoreo, 
-        resAplicaciones, resFertilizaciones, resRiegos, resCostos
+        resAplicaciones, resFertilizaciones, resRiegos, resCostos, resCosechas
       ] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/preparacion/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_BASE_URL}/api/siembra/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -154,7 +174,8 @@ export default function CicloDetalle() {
         axios.get(`${API_BASE_URL}/api/aplicaciones-agroquimicos/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_BASE_URL}/api/fertilizaciones/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_BASE_URL}/api/riegos/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get(`${API_BASE_URL}/api/costos/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(`${API_BASE_URL}/api/costos/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_BASE_URL}/api/cosechas/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
 
       setPreparaciones(resPrep.data);
@@ -169,6 +190,13 @@ export default function CicloDetalle() {
       setFertilizaciones(resFertilizaciones.data);
       setRiegos(resRiegos.data);
       setCostos(resCostos.data);
+      if (resCosechas.data && resCosechas.data.length > 0) {
+        setCosecha(resCosechas.data[0]);
+        // Update cicloData state just visually
+        cicloData.estado = 'COSECHADO';
+      } else {
+        setCosecha(null);
+      }
     } catch (err) {
       console.error(err);
       alert('Error al cargar la información del ciclo.');
@@ -492,6 +520,38 @@ export default function CicloDetalle() {
     }
   };
 
+  // Registrar Cosecha (HU-013)
+  const handleCreateCosecha = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/cosechas/`, {
+        ...nuevaCosecha,
+        ciclo: parseInt(cicloId),
+        produccion_obtenida_kg: parseFloat(nuevaCosecha.produccion_obtenida_kg),
+        humedad_grano_porcentaje: parseFloat(nuevaCosecha.humedad_grano_porcentaje),
+        impurezas_porcentaje: parseFloat(nuevaCosecha.impurezas_porcentaje) || 0
+      }, { headers: { Authorization: `Bearer ${token}` } });
+
+      setCosecha(response.data);
+      cicloData.estado = 'COSECHADO';
+      setIsModalCosechaOpen(false);
+      setNuevaCosecha({
+        fecha: new Date().toISOString().split('T')[0],
+        produccion_obtenida_kg: '',
+        humedad_grano_porcentaje: '',
+        impurezas_porcentaje: '0',
+        condiciones_cosecha: ''
+      });
+      showToast('¡Cosecha registrada! El cultivo ha finalizado sus operaciones.', 'success');
+    } catch (err) {
+      console.error(err);
+      alert('Error al registrar la cosecha.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Diccionarios de etiquetas
   const laborToLabel = {
     'RASTRA': 'Pase de Rastra',
@@ -601,6 +661,9 @@ export default function CicloDetalle() {
           </button>
           <button onClick={() => setActiveTab('costos')} className={`flex items-center gap-2 px-5 py-3 font-bold text-sm whitespace-nowrap relative rounded-xl transition-all ${activeTab === 'costos' ? 'bg-rice-green text-white shadow-md shadow-rice-green/10' : 'text-gray-500 hover:text-gray-800'}`}>
             <Coins className="w-4 h-4" /> Billetera de Costos
+          </button>
+          <button onClick={() => setActiveTab('cosecha')} className={`flex items-center gap-2 px-5 py-3 font-bold text-sm whitespace-nowrap relative rounded-xl transition-all ${activeTab === 'cosecha' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/10' : 'text-gray-500 hover:text-amber-600'}`}>
+            <Wheat className="w-4 h-4" /> Cosecha y Producción
           </button>
         </div>
 
@@ -1113,6 +1176,80 @@ export default function CicloDetalle() {
                   </div>
                 </motion.div>
               )}
+
+              {/* TAB 8: COSECHA */}
+              {activeTab === 'cosecha' && (
+                <motion.div key="cos" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                  {!cosecha ? (
+                    <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+                      <div className="flex justify-between items-center mb-6">
+                        <div>
+                          <h2 className="text-xl font-bold text-gray-900">Registrar Cosecha Final</h2>
+                          <p className="text-sm text-gray-500 mt-1">Registra la producción física obtenida al finalizar el ciclo productivo.</p>
+                        </div>
+                        <button onClick={() => setIsModalCosechaOpen(true)} className="bg-amber-500 text-white px-4 py-2 rounded-xl font-semibold shadow-md shadow-amber-500/30 hover:bg-amber-600 flex items-center gap-2 text-sm transition-colors">
+                          <Wheat className="w-4 h-4" /> Registrar Cosecha
+                        </button>
+                      </div>
+                      
+                      <div className="bg-amber-50 border border-dashed border-amber-200 rounded-2xl p-10 text-center">
+                        <Wheat className="w-12 h-12 text-amber-300 mx-auto mb-3" />
+                        <h3 className="text-amber-900 font-bold">Sin registrar</h3>
+                        <p className="text-amber-700/80 text-sm mt-1">El lote aún no ha sido cosechado o no se ha reportado la producción.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-8 shadow-sm relative overflow-hidden">
+                      <Wheat className="absolute -bottom-10 -right-10 w-64 h-64 text-amber-200/50" />
+                      <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-6">
+                          <CheckCircle2 className="w-8 h-8 text-amber-600" />
+                          <h2 className="text-2xl font-extrabold text-amber-900">Cosecha Registrada</h2>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+                          <div className="bg-white/60 p-5 rounded-2xl backdrop-blur-sm border border-amber-100 lg:col-span-2 flex items-center gap-4">
+                            <div className="w-14 h-14 bg-amber-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-inner">
+                              {(parseFloat(cosecha.rendimiento_ton_ha)).toFixed(2)}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-amber-800">Rendimiento</p>
+                              <p className="text-xl font-bold text-amber-950">Ton/Ha</p>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white/60 p-5 rounded-2xl backdrop-blur-sm border border-amber-100 flex flex-col justify-center">
+                            <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">Producción Total</p>
+                            <p className="text-xl font-bold text-amber-950 mt-1">{new Intl.NumberFormat('es-CO').format(cosecha.produccion_obtenida_kg)} Kg</p>
+                          </div>
+                          
+                          <div className="bg-white/60 p-5 rounded-2xl backdrop-blur-sm border border-amber-100 flex flex-col justify-center">
+                            <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">Humedad</p>
+                            <p className="text-xl font-bold text-amber-950 mt-1">{cosecha.humedad_grano_porcentaje}%</p>
+                          </div>
+                          
+                          <div className="bg-white/60 p-5 rounded-2xl backdrop-blur-sm border border-amber-100 flex flex-col justify-center">
+                            <p className="text-xs font-semibold text-amber-800 uppercase tracking-wider">Impurezas</p>
+                            <p className="text-xl font-bold text-amber-950 mt-1">{cosecha.impurezas_porcentaje}%</p>
+                          </div>
+                        </div>
+
+                        <div className="bg-white/60 p-5 rounded-2xl backdrop-blur-sm border border-amber-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div>
+                            <p className="text-sm font-semibold text-amber-800">Fecha de Cosecha</p>
+                            <p className="text-lg font-bold text-amber-950">{cosecha.fecha}</p>
+                          </div>
+                          {cosecha.condiciones_cosecha && (
+                            <div className="bg-amber-100/50 px-4 py-2 rounded-xl border border-amber-200/50">
+                              <p className="text-sm font-medium text-amber-900">{cosecha.condiciones_cosecha}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
             </AnimatePresence>
           )}
         </div>
@@ -1473,6 +1610,64 @@ export default function CicloDetalle() {
               </form>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL 8: COSECHA */}
+      <AnimatePresence>
+        {isModalCosechaOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+              <div className="px-6 py-4 border-b border-amber-100 flex justify-between items-center bg-amber-50">
+                <h3 className="font-extrabold text-amber-900 flex items-center gap-2"><Wheat className="w-5 h-5"/> Registrar Cosecha Final</h3>
+                <button onClick={() => setIsModalCosechaOpen(false)} className="p-1 text-amber-600 hover:bg-amber-200 rounded-full"><X className="w-5 h-5" /></button>
+              </div>
+              <form onSubmit={handleCreateCosecha} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Fecha de Cosecha</label>
+                  <input type="date" required value={nuevaCosecha.fecha} onChange={e => setNuevaCosecha({...nuevaCosecha, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Producción Obtenida (Kg totales)</label>
+                  <input type="number" step="0.1" min="0" required value={nuevaCosecha.produccion_obtenida_kg} onChange={e => setNuevaCosecha({...nuevaCosecha, produccion_obtenida_kg: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Ej: 8500" />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Humedad (%)</label>
+                    <input type="number" step="0.1" min="0" max="100" required value={nuevaCosecha.humedad_grano_porcentaje} onChange={e => setNuevaCosecha({...nuevaCosecha, humedad_grano_porcentaje: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Ej: 22.5" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Impurezas (%)</label>
+                    <input type="number" step="0.1" min="0" max="100" required value={nuevaCosecha.impurezas_porcentaje} onChange={e => setNuevaCosecha({...nuevaCosecha, impurezas_porcentaje: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Ej: 2.0" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Condiciones / Observaciones</label>
+                  <textarea rows="3" value={nuevaCosecha.condiciones_cosecha} onChange={e => setNuevaCosecha({...nuevaCosecha, condiciones_cosecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none resize-none" placeholder="Ej: Cosecha con lluvias leves en la tarde..."></textarea>
+                </div>
+
+                <button type="submit" disabled={saving} className="w-full bg-amber-500 text-white py-3 rounded-xl font-bold shadow-md shadow-amber-500/35 hover:bg-amber-600 transition-colors">{saving ? <Loader className="animate-spin w-5 h-5 mx-auto" /> : 'Confirmar Cierre de Cultivo'}</button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, scale: 0.9 }} 
+            animate={{ opacity: 1, y: 0, scale: 1 }} 
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className={`fixed bottom-6 right-6 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm ${toast.type === 'success' ? 'bg-white text-emerald-800 border-2 border-emerald-500' : 'bg-white text-red-800 border-2 border-red-500'}`}
+          >
+            {toast.type === 'success' ? <CheckCircle2 className="w-6 h-6 text-emerald-500" /> : <AlertTriangle className="w-6 h-6 text-red-500" />}
+            {toast.message}
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
