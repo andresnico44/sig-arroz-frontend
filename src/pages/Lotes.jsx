@@ -427,20 +427,23 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
             {/* Buscador por Nombre */}
-            <div className="md:col-span-3 relative">
-              <Search className="absolute left-3.5 top-3.5 w-4.5 h-4.5 text-gray-400" />
-              <input 
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar lote por nombre..."
-                className="w-full pl-11 pr-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl text-xs focus:border-emerald-500 focus:outline-none transition-all font-semibold text-gray-900"
-              />
+            <div className="md:col-span-3 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Buscar Lote:</label>
+              <div className="relative w-full">
+                <Search className="absolute left-3.5 top-3.5 w-4.5 h-4.5 text-gray-400" />
+                <input 
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar por nombre..."
+                  className="w-full pl-11 pr-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl text-xs focus:border-emerald-500 focus:outline-none transition-all font-semibold text-gray-900"
+                />
+              </div>
             </div>
 
             {/* Filtro Hectáreas */}
-            <div className="md:col-span-3 flex items-center gap-2">
-              <span className="text-2xs font-bold text-gray-500 shrink-0 uppercase tracking-wider">Hectáreas:</span>
+            <div className="md:col-span-3 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Hectáreas:</label>
               <select
                 value={sizeFilter}
                 onChange={(e) => setSizeFilter(e.target.value)}
@@ -454,8 +457,8 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
             </div>
 
             {/* Tipo Suelo */}
-            <div className="md:col-span-2 flex items-center gap-2">
-              <span className="text-2xs font-bold text-gray-500 shrink-0 uppercase tracking-wider">Suelo:</span>
+            <div className="md:col-span-2 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Suelo:</label>
               <select
                 value={soilFilter}
                 onChange={(e) => setSoilFilter(e.target.value)}
@@ -469,8 +472,8 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
             </div>
 
             {/* Sistema Producción */}
-            <div className="md:col-span-2 flex items-center gap-2">
-              <span className="text-2xs font-bold text-gray-500 shrink-0 uppercase tracking-wider">Cultivo:</span>
+            <div className="md:col-span-2 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Cultivo:</label>
               <select
                 value={prodFilter}
                 onChange={(e) => setProdFilter(e.target.value)}
@@ -483,8 +486,8 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
             </div>
 
             {/* Estado */}
-            <div className="md:col-span-2 flex items-center gap-2">
-              <span className="text-2xs font-bold text-gray-500 shrink-0 uppercase tracking-wider">Estado:</span>
+            <div className="md:col-span-2 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Estado:</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}

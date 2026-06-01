@@ -37,7 +37,8 @@ export default function LoteDetalle() {
     semestre: '1',
     variedad_arroz: '',
     presupuesto_estimado: '',
-    estado: 'PLANIFICADO'
+    estado: 'PLANIFICADO',
+    fecha_inicio_real: new Date().toISOString().split('T')[0]
   });
 
   const [nuevoAnalisis, setNuevoAnalisis] = useState({
@@ -95,7 +96,7 @@ export default function LoteDetalle() {
       }, { headers: { Authorization: `Bearer ${token}` } });
       setCiclos([response.data, ...ciclos]);
       setIsModalCicloOpen(false);
-      setNuevoCiclo({ semestre: '2024-A', variedad_arroz: '', presupuesto_estimado: '', estado: 'PLANIFICADO' });
+      setNuevoCiclo({ nombre_ciclo: '', anio: new Date().getFullYear(), semestre: '1', variedad_arroz: '', presupuesto_estimado: '', estado: 'PLANIFICADO', fecha_inicio_real: new Date().toISOString().split('T')[0] });
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.detail || 'Error al crear ciclo productivo.');
@@ -245,8 +246,8 @@ export default function LoteDetalle() {
                 <p className="text-gray-500 text-sm">Gestiona las temporadas de siembra y cosecha de este lote</p>
               </div>
               
-              {/* MAGIA DE ROLES (RBAC): El botón está estrictamente prohibido y oculto para el TECNICO */}
-              {rol !== 'TECNICO' && (
+              {/* MAGIA DE ROLES (RBAC): Actualizado para permitir que el TECNICO inicie ciclos */}
+              {(
                 <motion.button
                   whileHover={(!tieneAnalisis || !esSueloApto) ? {} : { scale: 1.02 }} 
                   whileTap={(!tieneAnalisis || !esSueloApto) ? {} : { scale: 0.98 }}
@@ -344,7 +345,7 @@ export default function LoteDetalle() {
               </motion.button>
             </div>
 
-            {tieneAnalisis && esSueloApto && rol !== 'TECNICO' && (
+            {tieneAnalisis && esSueloApto && (
               <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
                 <div className="flex gap-4">
                   <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
@@ -426,11 +427,8 @@ export default function LoteDetalle() {
                     <input type="number" required value={nuevoCiclo.anio} onChange={e => setNuevoCiclo({...nuevoCiclo, anio: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Semestre</label>
-                    <select value={nuevoCiclo.semestre} onChange={e => setNuevoCiclo({...nuevoCiclo, semestre: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none font-bold text-gray-700">
-                      <option value="1">Primer Semestre (A)</option>
-                      <option value="2">Segundo Semestre (B)</option>
-                    </select>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Fecha de Inicio</label>
+                    <input type="date" required value={nuevoCiclo.fecha_inicio_real} onChange={e => setNuevoCiclo({...nuevoCiclo, fecha_inicio_real: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none font-bold text-gray-700" />
                   </div>
                 </div>
                 <div>
@@ -441,6 +439,9 @@ export default function LoteDetalle() {
                   <label className="block text-sm font-bold text-gray-700 mb-1">Presupuesto Estimado (COP)</label>
                   <input type="number" min="0" required value={nuevoCiclo.presupuesto_estimado} onChange={e => setNuevoCiclo({...nuevoCiclo, presupuesto_estimado: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 15000000" />
                 </div>
+
+
+
                 <button type="submit" disabled={saving} className="w-full mt-4 py-3 bg-rice-green text-white font-bold rounded-xl shadow-lg hover:bg-[#154224] transition-colors flex justify-center items-center gap-2">
                   {saving ? <Loader className="w-5 h-5 animate-spin" /> : 'Guardar Ciclo'}
                 </button>
