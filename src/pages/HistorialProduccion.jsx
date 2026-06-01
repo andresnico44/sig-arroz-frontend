@@ -450,6 +450,7 @@ export default function HistorialProduccion() {
                     <th className="px-6 py-4 text-center">Humedad (%)</th>
                     <th className="px-6 py-4 text-center">Impurezas (%)</th>
                     <th className="px-6 py-4 text-right">Rendimiento</th>
+                    <th className="px-6 py-4 text-center">Estado Liquidación</th>
                     <th className="px-6 py-4 pl-8 max-w-xs">Condiciones / Observaciones</th>
                   </tr>
                 </thead>
@@ -510,12 +511,19 @@ export default function HistorialProduccion() {
                               {harvest.finca_nombre}
                             </span>
                             <span className="text-3xs text-gray-400 font-extrabold uppercase mt-0.5">
-                              Lote: {harvest.lote_nombre}
+                              Lote: {harvest.lote_nombre} ({harvest.lote_area} Ha)
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 font-bold text-gray-850">
-                          {harvest.ciclo_nombre}
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-850">
+                              {harvest.ciclo_nombre}
+                            </span>
+                            <span className="text-[10px] text-gray-500 font-semibold mt-0.5">
+                              Variedad: {harvest.variedad_arroz}
+                            </span>
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-gray-500 font-bold">
                           {new Date(harvest.fecha).toLocaleDateString('es-ES', {
@@ -541,6 +549,17 @@ export default function HistorialProduccion() {
                             <span className="text-[10px] text-gray-400 font-extrabold uppercase shrink-0">Ton/Ha</span>
                             {yieldBadge}
                           </div>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          {harvest.estado_ciclo === 'FINALIZADO' ? (
+                            <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-2.5 py-1 rounded shadow-sm border border-blue-200">
+                              Liquidada
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded shadow-sm border border-amber-200">
+                              Pendiente
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4 pl-8 max-w-xs text-2xs text-gray-500 font-medium italic break-words">
                           {harvest.condiciones_cosecha || <span className="text-gray-300 font-normal">Sin observaciones</span>}
