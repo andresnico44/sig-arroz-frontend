@@ -105,8 +105,6 @@ export default function CicloDetalle() {
     ingrediente_activo: '',
     dosis_por_ha: '',
     equipo_aspersion: 'BOMBA_ESPALDA',
-    temperatura_c: '',
-    velocidad_viento_kmh: '',
     periodo_carencia_dias: '',
     costo_producto: '',
     costo_mano_obra: ''
@@ -419,8 +417,6 @@ export default function CicloDetalle() {
         ciclo: parseInt(cicloId),
         monitoreo: nuevaAplicacion.monitoreo ? parseInt(nuevaAplicacion.monitoreo) : null,
         dosis_por_ha: parseFloat(nuevaAplicacion.dosis_por_ha),
-        temperatura_c: nuevaAplicacion.temperatura_c ? parseFloat(nuevaAplicacion.temperatura_c) : null,
-        velocidad_viento_kmh: nuevaAplicacion.velocidad_viento_kmh ? parseFloat(nuevaAplicacion.velocidad_viento_kmh) : null,
         periodo_carencia_dias: parseInt(nuevaAplicacion.periodo_carencia_dias),
         costo_producto: parseFloat(nuevaAplicacion.costo_producto) || 0,
         costo_mano_obra: parseFloat(nuevaAplicacion.costo_mano_obra) || 0
@@ -435,8 +431,6 @@ export default function CicloDetalle() {
         ingrediente_activo: '',
         dosis_por_ha: '',
         equipo_aspersion: 'BOMBA_ESPALDA',
-        temperatura_c: '',
-        velocidad_viento_kmh: '',
         periodo_carencia_dias: '',
         costo_producto: '',
         costo_mano_obra: ''
@@ -1131,10 +1125,8 @@ export default function CicloDetalle() {
                                 <h4 className="font-extrabold text-rice-dark text-base mt-1">{a.nombre_comercial}</h4>
                                 <p className="text-xs text-gray-600 font-bold mt-1">I. Activo: {a.ingrediente_activo} | Dosis: {a.dosis_por_ha} L/Ha</p>
                                 
-                                <div className="mt-3 grid grid-cols-2 gap-2 text-xs bg-white p-2.5 rounded-xl border border-gray-100 font-semibold text-gray-700">
-                                  <p>💨 Viento: {a.velocidad_viento_kmh ? `${a.velocidad_viento_kmh} Km/h` : 'N/A'}</p>
-                                  <p>🌡️ Temp: {a.temperatura_c ? `${a.temperatura_c} °C` : 'N/A'}</p>
-                                  <p className="col-span-2">✈️ Método: {a.equipo_aspersion}</p>
+                                <div className="mt-3 text-xs bg-white p-2.5 rounded-xl border border-gray-100 font-semibold text-gray-700">
+                                  <p>✈️ Método: {a.equipo_aspersion}</p>
                                 </div>
 
                                 <div className="mt-3 flex items-center justify-between gap-2 border-t border-gray-100 pt-3">
