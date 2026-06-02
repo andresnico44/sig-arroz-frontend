@@ -293,6 +293,7 @@ export default function CicloDetalle() {
 
   const handleCreateSiembra = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/siembra/`, {
@@ -302,6 +303,7 @@ export default function CicloDetalle() {
         germinacion_porcentaje: parseFloat(nuevaSiembra.germinacion_porcentaje)
       }, { headers: { Authorization: `Bearer ${token}` } });
       setSiembra(response.data);
+      setCicloData(prev => ({...prev, estado: 'EJECUCION', fecha_inicio_real: response.data.fecha}));
       alert("¡Siembra registrada con éxito! El cultivo ahora está EN EJECUCIÓN.");
     } catch (err) {
       console.error(err);
@@ -313,6 +315,7 @@ export default function CicloDetalle() {
 
   const handleCreateFeno = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/fenologia/`, {
@@ -354,6 +357,7 @@ export default function CicloDetalle() {
   // Registrar Monitoreo Fitosanitario (Soporte Offline)
   const handleCreateMonitoreo = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
 
     const payload = {
@@ -407,6 +411,7 @@ export default function CicloDetalle() {
   // Registrar Aplicación de Agroquímicos
   const handleCreateAplicacion = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/aplicaciones-agroquimicos/`, {
@@ -451,6 +456,7 @@ export default function CicloDetalle() {
   // Registrar Fertilización del Cultivo
   const handleCreateFertilizacion = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/fertilizaciones/`, {
@@ -487,6 +493,7 @@ export default function CicloDetalle() {
   // Registrar Riegos y Drenaje
   const handleCreateRiego = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/riegos/`, {
@@ -524,6 +531,7 @@ export default function CicloDetalle() {
   // Asentar Costo Manual Extraordinario
   const handleCreateCosto = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/costos/`, {
@@ -551,6 +559,7 @@ export default function CicloDetalle() {
   // Registrar Cosecha (HU-013)
   const handleCreateCosecha = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/cosechas/`, {
@@ -590,6 +599,7 @@ export default function CicloDetalle() {
 
   const handleCreateLiquidacion = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     try {
       const ingresoNetoCalculado = calcularIngresoNeto();
@@ -1928,7 +1938,7 @@ export default function CicloDetalle() {
                 <button onClick={() => setIsModalFenoOpen(false)} className="p-1 text-gray-400 hover:bg-gray-200 rounded-full"><X className="w-5 h-5" /></button>
               </div>
               <form onSubmit={handleCreateFeno} className="p-6 space-y-4">
-                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha Detectada en Campo</label><input type="date" required value={nuevaFeno.fecha} onChange={e => setNuevaFeno({...nuevaFeno, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha Detectada en Campo</label><input type="date" required min={siembra?.fecha || ''} value={nuevaFeno.fecha} onChange={e => setNuevaFeno({...nuevaFeno, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Fase Vegetativa/Reproductiva</label>
@@ -1975,7 +1985,7 @@ export default function CicloDetalle() {
                 <button onClick={() => setIsModalMonitoreoOpen(false)} className="p-1 text-gray-400 hover:bg-gray-200 rounded-full"><X className="w-5 h-5" /></button>
               </div>
               <form onSubmit={handleCreateMonitoreo} className="p-6 space-y-4">
-                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevoMonitoreo.fecha} onChange={e => setNuevoMonitoreo({...nuevoMonitoreo, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevoMonitoreo.fecha} onChange={e => setNuevoMonitoreo({...nuevoMonitoreo, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -2022,7 +2032,7 @@ export default function CicloDetalle() {
               </div>
               <form onSubmit={handleCreateAplicacion} className="p-6 space-y-4 max-h-[500px] overflow-y-auto">
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevaAplicacion.fecha} onChange={e => setNuevaAplicacion({...nuevaAplicacion, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+                  <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevaAplicacion.fecha} onChange={e => setNuevaAplicacion({...nuevaAplicacion, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Monitoreo Relacionado</label>
                     <select value={nuevaAplicacion.monitoreo} onChange={e => setNuevaAplicacion({...nuevaAplicacion, monitoreo: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none text-sm">
@@ -2094,7 +2104,7 @@ export default function CicloDetalle() {
               </div>
               <form onSubmit={handleCreateFertilizacion} className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevaFertilizacion.fecha} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+                  <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevaFertilizacion.fecha} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Etapa Fenológica</label>
                     <select value={nuevaFertilizacion.etapa_fenologica} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, etapa_fenologica: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
@@ -2153,7 +2163,7 @@ export default function CicloDetalle() {
               </div>
               <form onSubmit={handleCreateRiego} className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevoRiego.fecha} onChange={e => setNuevoRiego({...nuevoRiego, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+                  <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevoRiego.fecha} onChange={e => setNuevoRiego({...nuevoRiego, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Fuente Hídrica</label>
                     <select value={nuevoRiego.fuente_hidrica} onChange={e => setNuevoRiego({...nuevoRiego, fuente_hidrica: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
@@ -2211,7 +2221,7 @@ export default function CicloDetalle() {
                 <button onClick={() => setIsModalCostoOpen(false)} className="p-1 text-gray-400 hover:bg-gray-200 rounded-full"><X className="w-5 h-5" /></button>
               </div>
               <form onSubmit={handleCreateCosto} className="p-6 space-y-4">
-                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevoCosto.fecha} onChange={e => setNuevoCosto({...nuevoCosto, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevoCosto.fecha} onChange={e => setNuevoCosto({...nuevoCosto, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Categoría Contable</label>
                   <select value={nuevoCosto.categoria} onChange={e => setNuevoCosto({...nuevoCosto, categoria: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
@@ -2251,7 +2261,7 @@ export default function CicloDetalle() {
               <form onSubmit={handleCreateCosecha} className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Fecha de Cosecha</label>
-                  <input type="date" required value={nuevaCosecha.fecha} onChange={e => setNuevaCosecha({...nuevaCosecha, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" />
+                  <input type="date" required min={siembra?.fecha || ''} value={nuevaCosecha.fecha} onChange={e => setNuevaCosecha({...nuevaCosecha, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" />
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -2475,7 +2485,7 @@ export default function CicloDetalle() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label>
-                    <input type="date" required value={costoEditando.fecha} onChange={e => setCostoEditando({...costoEditando, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" />
+                    <input type="date" required min={siembra?.fecha || ''} value={costoEditando.fecha} onChange={e => setCostoEditando({...costoEditando, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Categoría</label>
