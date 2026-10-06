@@ -6,8 +6,8 @@ import {
   Sliders, ChevronDown, Calendar, User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { API_BASE_URL } from '../api';
+import api from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export default function Fincas() {
   const [fincas, setFincas] = useState([]);
@@ -39,34 +39,25 @@ export default function Fincas() {
 
   // Filtros Avanzados
   const [searchTerm, setSearchTerm] = useState('');
-  const [sizeFilter, setSizeFilter] = useState('ALL'); // 'ALL', 'SMALL', 'MEDIUM', 'LARGE'
-  const [selectedDept, setSelectedDept] = useState('ALL'); // 'ALL' o valor único del dpto.
+  const [sizeFilter, setSizeFilter] = useState('ALL');
+  const [selectedDept, setSelectedDept] = useState('ALL');
 
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   
-  // Obtener datos del usuario logueado
-  const username = localStorage.getItem('username');
-  const rol = localStorage.getItem('rol');
-  const token = localStorage.getItem('token');
+  const username = user?.username || localStorage.getItem('username');
+  const rol = user?.rol || localStorage.getItem('rol');
 
   useEffect(() => {
-    if (!token) {
-      navigate('/login');
-    } else if (rol === 'ADMIN') {
-      navigate('/admin-dashboard');
-    } else {
-      fetchFincas();
-      if (rol === 'ADMIN') {
-        fetchProductores();
-      }
+    fetchFincas();
+    if (rol === 'ADMIN') {
+      fetchProductores();
     }
-  }, [navigate, token, rol]);
+  }, [rol]);
 
   const fetchProductores = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/productores/`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/api/productores/');
       setProductores(response.data);
       if (response.data.length > 0) {
         setNuevaFinca(prev => ({ ...prev, productor_id: response.data[0].id }));
@@ -79,24 +70,18 @@ export default function Fincas() {
   const fetchFincas = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/api/fincas/`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/api/fincas/');
       setFincas(response.data);
     } catch (err) {
       console.error(err);
-      if (err.response?.status === 401) {
-        handleLogout();
-      } else {
-        setError('No se pudieron cargar las fincas. Intenta de nuevo más tarde.');
-      }
+      setError('No se pudieron cargar las fincas. Intenta de nuevo más tarde.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = () => {
-    localStorage.clear();
+    logout();
     navigate('/login');
   };
 
