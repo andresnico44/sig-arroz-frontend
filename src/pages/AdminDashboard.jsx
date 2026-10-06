@@ -6,12 +6,12 @@ import {
   LogOut, MapPin, Activity, UserPlus, ChevronRight, Loader
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { API_BASE_URL } from '../api';
+import api from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  const { logout } = useAuth();
   const loggedInUser = localStorage.getItem('username') || 'Administrador';
 
   // Estados locales
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
 
   // Modales
   const [showUserModal, setShowUserModal] = useState(false);
-  const [editingUser, setEditingUser] = useState(null); // null para nuevo, objeto para editar
+  const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
     nombre_completo_input: '',
     email: '',
@@ -40,13 +40,6 @@ export default function AdminDashboard() {
 
   // Cargar datos al montar
   useEffect(() => {
-    // Seguridad: verificar si es admin
-    const rol = localStorage.getItem('rol');
-    if (!token || rol !== 'ADMIN') {
-      navigate('/login');
-      return;
-    }
-
     fetchData();
   }, []);
 
@@ -54,14 +47,12 @@ export default function AdminDashboard() {
     setLoading(true);
     setError('');
     try {
-      const headers = { Authorization: `Bearer ${token}` };
-      
-      // Consultas en paralelo
+      // Consultas en paralelo usando la instancia centralizada
       const [resMetrics, resUsers, resFincas, resProductores] = await Promise.all([
-        axios.get(`${API_BASE_URL}/api/admin/metrics/`, { headers }),
-        axios.get(`${API_BASE_URL}/api/users-gestion/`, { headers }),
-        axios.get(`${API_BASE_URL}/api/fincas/`, { headers }),
-        axios.get(`${API_BASE_URL}/api/productores/`, { headers })
+        api.get('/api/admin/metrics/'),
+        api.get('/api/users-gestion/'),
+        api.get('/api/fincas/'),
+        api.get('/api/productores/')
       ]);
 
       setMetrics(resMetrics.data);
@@ -77,11 +68,10 @@ export default function AdminDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.clear();
+    logout();
     navigate('/login');
   };
 
-  // Abrir modal para crear usuario
   const handleOpenCreateModal = () => {
     setEditingUser(null);
     setFormData({
@@ -96,7 +86,6 @@ export default function AdminDashboard() {
     setShowUserModal(true);
   };
 
-  // Abrir modal para editar usuario
   const handleOpenEditModal = (user) => {
     setEditingUser(user);
     setFormData({
@@ -104,38 +93,31 @@ export default function AdminDashboard() {
       email: user.email || '',
       rol: user.rol || 'PRODUCTOR',
       telefono: user.telefono || '',
-      password: '', // Contraseña en blanco a menos que se quiera cambiar
+      password: '',
       is_active: user.is_active
     });
     setModalError('');
     setShowUserModal(true);
   };
 
-  // Enviar formulario (crear/editar)
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setModalLoading(true);
     setModalError('');
     try {
-      const headers = { Authorization: `Bearer ${token}` };
-      
       if (editingUser) {
-        // Actualizar
         const payload = { ...formData };
-        if (!payload.password) delete payload.password; // No actualizar si está vacía
+        if (!payload.password) delete payload.password;
         
-        await axios.put(`${API_BASE_URL}/api/users-gestion/${editingUser.id}/`, payload, { headers });
+        await api.put(`/api/users-gestion/${editingUser.id}/`, payload);
         setSuccessMsg('Usuario actualizado con éxito.');
       } else {
-        // Crear
-        await axios.post(`${API_BASE_URL}/api/users-gestion/`, formData, { headers });
+        await api.post('/api/users-gestion/', formData);
         setSuccessMsg('Usuario registrado con éxito.');
       }
 
       setShowUserModal(false);
-      fetchData(); // Recargar datos
-      
-      // Auto-ocultar notificación de éxito
+      await fetchData();
       setTimeout(() => setSuccessMsg(''), 4000);
     } catch (err) {
       console.error(err);
@@ -156,7 +138,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Eliminar usuario
   const handleDeleteUser = async (userId) => {
     const userToDelete = usersList.find(u => u.id === userId);
     if (!userToDelete) return;
@@ -168,8 +149,7 @@ export default function AdminDashboard() {
 
     if (window.confirm(`¿Estás seguro de que deseas eliminar el usuario "${userToDelete.nombre_completo}"?`)) {
       try {
-        const headers = { Authorization: `Bearer ${token}` };
-        await axios.delete(`${API_BASE_URL}/api/users-gestion/${userId}/`, { headers });
+        await api.delete(`/api/users-gestion/${userId}/`);
         setSuccessMsg('Usuario eliminado con éxito.');
         fetchData();
         setTimeout(() => setSuccessMsg(''), 4000);
