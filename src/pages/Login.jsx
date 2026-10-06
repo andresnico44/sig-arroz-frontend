@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState(''); // El input del correo electrónico
@@ -11,6 +12,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { loginUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +21,6 @@ export default function Login() {
 
     try {
       // DRF SimpleJWT espera 'username' y 'password'.
-      // Como guardamos el email como username en la DB, enviamos el 'email' en el campo 'username'.
       const response = await axios.post(`${API_BASE_URL}/api/token/`, {
         username: email,
         password: password
@@ -30,16 +31,23 @@ export default function Login() {
       // Decodificar el JWT nativamente para extraer el Rol y el Nombre Completo
       const payload = JSON.parse(atob(access.split('.')[1]));
 
-      // Guardar datos de sesión
-      localStorage.setItem('token', access);
-      localStorage.setItem('refresh_token', refresh);
-      localStorage.setItem('username', payload.username); // Aquí vendrá el Nombre Completo real
-      localStorage.setItem('rol', payload.rol);
+      const userData = {
+        username: payload.username,
+        email: email,
+        rol: payload.rol
+      };
+
+      // Actualizar el estado del contexto de autenticación
+      loginUser(userData, access, refresh);
 
       console.log('Login exitoso. Usuario:', payload.username, '| Rol:', payload.rol);
 
-      // Redirigir según corresponda (futuro Dashboard)
-      navigate('/');
+      // Redirigir según el rol del usuario
+      if (payload.rol === 'ADMIN') {
+        navigate('/admin-dashboard');
+      } else {
+        navigate('/fincas');
+      }
     } catch (err) {
       console.error(err);
       if (err.response && err.response.status === 401) {
