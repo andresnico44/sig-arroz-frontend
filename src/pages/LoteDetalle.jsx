@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, FlaskConical, CalendarClock, Plus, X, Loader, Tractor, LogOut, FileText, CheckCircle2, Info } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
@@ -14,12 +14,12 @@ export default function LoteDetalle() {
   const fincaData = location.state?.finca || null;
 
   const [activeTab, setActiveTab] = useState('analisis'); // 'analisis' | 'ciclos'
-  
+
   // Data states
   const [ciclos, setCiclos] = useState([]);
   const [analisisList, setAnalisisList] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Reglas Agronómicas Calculadas (Suelo Apto para Arroz)
   const ultimoAnalisis = analisisList && analisisList.length > 0 ? analisisList[0] : null;
   const tieneAnalisis = analisisList && analisisList.length > 0;
@@ -54,14 +54,6 @@ export default function LoteDetalle() {
   const rol = localStorage.getItem('rol');
   const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-    fetchData();
-  }, [loteId, token]);
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -78,6 +70,15 @@ export default function LoteDetalle() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loteId, token]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -164,7 +165,7 @@ export default function LoteDetalle() {
               </div>
               <span className="text-xl font-bold text-rice-dark tracking-tight">SIG-ARROZ</span>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-rice-dark">{username}</p>
@@ -181,7 +182,7 @@ export default function LoteDetalle() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Botón de regreso dinámico */}
-        <button 
+        <button
           onClick={() => fincaData ? navigate(`/fincas/${fincaData.id}/lotes`, { state: { finca: fincaData } }) : navigate('/')}
           className="flex items-center gap-2 text-gray-600 hover:text-rice-green font-bold mb-6 transition-colors group"
         >
@@ -215,7 +216,7 @@ export default function LoteDetalle() {
 
         {/* TABS NAVIGATION */}
         <div className="flex border-b border-gray-200 mb-8">
-          <button 
+          <button
             onClick={() => setActiveTab('analisis')}
             className={`flex items-center gap-2 px-6 py-4 font-bold text-sm transition-colors relative ${activeTab === 'analisis' ? 'text-rice-green' : 'text-gray-500 hover:text-gray-700'}`}
           >
@@ -225,7 +226,7 @@ export default function LoteDetalle() {
             )}
           </button>
 
-          <button 
+          <button
             onClick={() => setActiveTab('ciclos')}
             className={`flex items-center gap-2 px-6 py-4 font-bold text-sm transition-colors relative ${activeTab === 'ciclos' ? 'text-rice-green' : 'text-gray-500 hover:text-gray-700'}`}
           >
@@ -244,11 +245,17 @@ export default function LoteDetalle() {
                 <h2 className="text-xl font-bold text-gray-900">Historial de Siembras</h2>
                 <p className="text-gray-500 text-sm">Gestiona las temporadas de siembra y cosecha de este lote</p>
               </div>
+<<<<<<< Updated upstream
               
               {/* MAGIA DE ROLES (RBAC): El botón está estrictamente prohibido y oculto para el TECNICO */}
               {rol !== 'TECNICO' && (
+=======
+
+              {/* MAGIA DE ROLES (RBAC): Actualizado para permitir que el TECNICO inicie ciclos */}
+              {(
+>>>>>>> Stashed changes
                 <motion.button
-                  whileHover={(!tieneAnalisis || !esSueloApto) ? {} : { scale: 1.02 }} 
+                  whileHover={(!tieneAnalisis || !esSueloApto) ? {} : { scale: 1.02 }}
                   whileTap={(!tieneAnalisis || !esSueloApto) ? {} : { scale: 0.98 }}
                   onClick={() => {
                     if (!tieneAnalisis) {
@@ -261,11 +268,10 @@ export default function LoteDetalle() {
                     }
                     setIsModalCicloOpen(true);
                   }}
-                  className={`px-4 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-md ${
-                    (!tieneAnalisis || !esSueloApto) 
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none' 
+                  className={`px-4 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-md ${(!tieneAnalisis || !esSueloApto)
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
                       : 'bg-rice-green text-white shadow-rice-green/30 hover:bg-[#154224]'
-                  }`}
+                    }`}
                 >
                   <Plus className="w-4 h-4" /> Iniciar Nuevo Ciclo
                 </motion.button>
@@ -311,7 +317,7 @@ export default function LoteDetalle() {
                       Presupuesto: <span className="text-rice-emerald">{formatCurrency(ciclo.presupuesto_estimado)}</span>
                     </p>
                     <div className="pt-3 border-t border-gray-100 flex gap-3 text-sm">
-                      <button 
+                      <button
                         onClick={() => navigate(`/lotes/${loteId}/ciclos/${ciclo.id}/gestion`, { state: { lote: loteData, finca: fincaData, ciclo } })}
                         className="text-rice-green font-bold hover:underline flex items-center gap-1"
                       >
@@ -333,7 +339,7 @@ export default function LoteDetalle() {
                 <h2 className="text-xl font-bold text-gray-900">Laboratorio y Suelos</h2>
                 <p className="text-gray-500 text-sm">Registra y monitorea el perfil químico del terreno</p>
               </div>
-              
+
               {/* Aquí el TECNICO sí puede ver y usar el botón, todos pueden registrar análisis */}
               <motion.button
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
@@ -355,7 +361,7 @@ export default function LoteDetalle() {
                     </p>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => {
                     setActiveTab('ciclos');
                     setIsModalCicloOpen(true);
@@ -388,7 +394,7 @@ export default function LoteDetalle() {
                         pH: {Number(ana.ph).toFixed(1)} - {ana.interpretacion_ph}
                       </span>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-2 text-sm border-t border-gray-100 pt-3 mt-3">
                       <div><span className="text-gray-500 font-semibold">Materia Orgánica:</span> <span className="font-bold text-gray-900">{ana.materia_organica_porcentaje}%</span></div>
                       <div><span className="text-gray-500 font-semibold">Textura:</span> <span className="font-bold text-gray-900 capitalize">{ana.textura?.toLowerCase() || 'Franco'}</span></div>
@@ -418,28 +424,33 @@ export default function LoteDetalle() {
               <form onSubmit={handleCreateCiclo} className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Nombre del Ciclo</label>
-                  <input type="text" required value={nuevoCiclo.nombre_ciclo} onChange={e => setNuevoCiclo({...nuevoCiclo, nombre_ciclo: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Cosecha Verano Sur" />
+                  <input type="text" required value={nuevoCiclo.nombre_ciclo} onChange={e => setNuevoCiclo({ ...nuevoCiclo, nombre_ciclo: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Cosecha Verano Sur" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Año</label>
-                    <input type="number" required value={nuevoCiclo.anio} onChange={e => setNuevoCiclo({...nuevoCiclo, anio: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" />
+                    <input type="number" required value={nuevoCiclo.anio} onChange={e => setNuevoCiclo({ ...nuevoCiclo, anio: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" />
                   </div>
                   <div>
+<<<<<<< Updated upstream
                     <label className="block text-sm font-bold text-gray-700 mb-1">Semestre</label>
                     <select value={nuevoCiclo.semestre} onChange={e => setNuevoCiclo({...nuevoCiclo, semestre: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none font-bold text-gray-700">
                       <option value="1">Primer Semestre (A)</option>
                       <option value="2">Segundo Semestre (B)</option>
                     </select>
+=======
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Fecha de Inicio</label>
+                    <input type="date" required value={nuevoCiclo.fecha_inicio_real} onChange={e => setNuevoCiclo({ ...nuevoCiclo, fecha_inicio_real: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none font-bold text-gray-700" />
+>>>>>>> Stashed changes
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Variedad de Arroz</label>
-                  <input type="text" required value={nuevoCiclo.variedad_arroz} onChange={e => setNuevoCiclo({...nuevoCiclo, variedad_arroz: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Fedearroz 68" />
+                  <input type="text" required value={nuevoCiclo.variedad_arroz} onChange={e => setNuevoCiclo({ ...nuevoCiclo, variedad_arroz: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Fedearroz 68" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Presupuesto Estimado (COP)</label>
-                  <input type="number" min="0" required value={nuevoCiclo.presupuesto_estimado} onChange={e => setNuevoCiclo({...nuevoCiclo, presupuesto_estimado: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 15000000" />
+                  <input type="number" min="0" required value={nuevoCiclo.presupuesto_estimado} onChange={e => setNuevoCiclo({ ...nuevoCiclo, presupuesto_estimado: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 15000000" />
                 </div>
                 <button type="submit" disabled={saving} className="w-full mt-4 py-3 bg-rice-green text-white font-bold rounded-xl shadow-lg hover:bg-[#154224] transition-colors flex justify-center items-center gap-2">
                   {saving ? <Loader className="w-5 h-5 animate-spin" /> : 'Guardar Ciclo'}
@@ -463,23 +474,23 @@ export default function LoteDetalle() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Nivel de pH</label>
-                    <input type="number" step="any" min="0" max="14" required value={nuevoAnalisis.ph} onChange={e => setNuevoAnalisis({...nuevoAnalisis, ph: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 6.5" />
+                    <input type="number" step="any" min="0" max="14" required value={nuevoAnalisis.ph} onChange={e => setNuevoAnalisis({ ...nuevoAnalisis, ph: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 6.5" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Materia Orgánica (%)</label>
-                    <input type="number" step="any" min="0" required value={nuevoAnalisis.materia_organica_porcentaje} onChange={e => setNuevoAnalisis({...nuevoAnalisis, materia_organica_porcentaje: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 3.2" />
+                    <input type="number" step="any" min="0" required value={nuevoAnalisis.materia_organica_porcentaje} onChange={e => setNuevoAnalisis({ ...nuevoAnalisis, materia_organica_porcentaje: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 3.2" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Fósforo (P) ppm</label>
-                    <input type="number" step="any" min="0" required value={nuevoAnalisis.fosforo_ppm} onChange={e => setNuevoAnalisis({...nuevoAnalisis, fosforo_ppm: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 15.0" />
+                    <input type="number" step="any" min="0" required value={nuevoAnalisis.fosforo_ppm} onChange={e => setNuevoAnalisis({ ...nuevoAnalisis, fosforo_ppm: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 15.0" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Potasio (K) meq/100g</label>
-                    <input type="number" step="any" min="0" required value={nuevoAnalisis.potasio_meq} onChange={e => setNuevoAnalisis({...nuevoAnalisis, potasio_meq: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 0.15" />
+                    <input type="number" step="any" min="0" required value={nuevoAnalisis.potasio_meq} onChange={e => setNuevoAnalisis({ ...nuevoAnalisis, potasio_meq: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: 0.15" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Textura</label>
-                    <select value={nuevoAnalisis.textura} onChange={e => setNuevoAnalisis({...nuevoAnalisis, textura: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-700">
+                    <select value={nuevoAnalisis.textura} onChange={e => setNuevoAnalisis({ ...nuevoAnalisis, textura: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-700">
                       <option value="FRANCO">Franco</option>
                       <option value="ARCILLOSO">Arcilloso</option>
                       <option value="ARENOSO">Arenoso</option>
@@ -487,7 +498,7 @@ export default function LoteDetalle() {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Laboratorio (Opcional)</label>
-                    <input type="text" value={nuevoAnalisis.laboratorio} onChange={e => setNuevoAnalisis({...nuevoAnalisis, laboratorio: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Lab. Agrícola" />
+                    <input type="text" value={nuevoAnalisis.laboratorio} onChange={e => setNuevoAnalisis({ ...nuevoAnalisis, laboratorio: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Lab. Agrícola" />
                   </div>
                 </div>
                 <button type="submit" disabled={saving} className="w-full mt-4 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:bg-blue-700 transition-colors flex justify-center items-center gap-2">

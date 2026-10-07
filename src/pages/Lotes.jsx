@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+<<<<<<< Updated upstream
 import { MapPin, Maximize, Plus, Tractor, LogOut, Loader, ArrowLeft, Layers, Compass, Droplet, Activity, X, Pencil, Trash2 } from 'lucide-react';
+=======
+import {
+  MapPin, Maximize, Plus, Tractor, LogOut, Loader, ArrowLeft,
+  Layers, Compass, Droplet, X, Pencil, Trash2, Search, Filter, TrendingUp
+} from 'lucide-react';
+>>>>>>> Stashed changes
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
@@ -14,7 +21,7 @@ export default function Lotes() {
   const [finca, setFinca] = useState(location.state?.finca || null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Estado para el modal de nuevo lote
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -46,6 +53,7 @@ export default function Lotes() {
   const rol = localStorage.getItem('rol');
   const token = localStorage.getItem('token');
 
+<<<<<<< Updated upstream
   useEffect(() => {
     if (!token) {
       navigate('/login');
@@ -60,6 +68,8 @@ export default function Lotes() {
     }
   }, [fincaId, token]);
 
+=======
+>>>>>>> Stashed changes
   const fetchFincaDetails = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/fincas/${fincaId}/`, {
@@ -89,6 +99,20 @@ export default function Lotes() {
     }
   };
 
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    if (!finca) {
+      fetchFincaDetails();
+    } else {
+      fetchLotes();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fincaId, token]);
+
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
@@ -103,10 +127,15 @@ export default function Lotes() {
   const handleCreateLote = async (e) => {
     e.preventDefault();
     setValidationError('');
-    
+
     const areaInput = parseFloat(nuevoLote.area_hectareas);
+<<<<<<< Updated upstream
     
     // Validación cruzada local (WOW UX)
+=======
+
+    // Validación cruzada local
+>>>>>>> Stashed changes
     if (areaInput > areaDisponible) {
       setValidationError(
         `No puedes registrar este lote. El área ingresada (${areaInput} ha) supera el área restante disponible en la finca (${areaDisponible.toFixed(2)} ha).`
@@ -235,7 +264,55 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
     }
   };
 
+<<<<<<< Updated upstream
   // Mapear etiquetas de estado a colores premium
+=======
+  // Geolocalización Nativa para Lotes
+  const capturarGPS = (isEdit = false) => {
+    if (!navigator.geolocation) {
+      alert("Tu navegador no soporta geolocalización.");
+      return;
+    }
+
+    if (isEdit) {
+      setGpsLoadingEdit(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setEditingLote(prev => ({
+            ...prev,
+            latitud: position.coords.latitude.toFixed(6),
+            longitud: position.coords.longitude.toFixed(6)
+          }));
+          setGpsLoadingEdit(false);
+        },
+        (err) => {
+          console.error(err);
+          setGpsLoadingEdit(false);
+          alert("No se pudo obtener la geolocalización. Otorga permisos de ubicación.");
+        }
+      );
+    } else {
+      setGpsLoadingCreate(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setNuevoLote(prev => ({
+            ...prev,
+            latitud: position.coords.latitude.toFixed(6),
+            longitud: position.coords.longitude.toFixed(6)
+          }));
+          setGpsLoadingCreate(false);
+        },
+        (err) => {
+          console.error(err);
+          setGpsLoadingCreate(false);
+          alert("No se pudo obtener la geolocalización. Otorga permisos de ubicación.");
+        }
+      );
+    }
+  };
+
+  // Mapear etiquetas de estado a colores premium en Tono Claro
+>>>>>>> Stashed changes
   const getEstadoBadge = (estado) => {
     const estilos = {
       'ACTIVO': 'bg-emerald-50 text-emerald-700 border border-emerald-200',
@@ -259,6 +336,7 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
               </div>
               <span className="text-xl font-bold text-rice-dark tracking-tight">SIG-ARROZ</span>
             </div>
+<<<<<<< Updated upstream
             
             <div className="flex items-center gap-4">
               <div className="text-right hidden sm:block">
@@ -273,29 +351,69 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
+=======
+            <span className="text-xl font-black text-gray-900 tracking-tight">SIG-ARROZ</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/historial-produccion', { state: { fincaId } })}
+              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold transition-all shadow-sm"
+              title="Ver Historial de Rendimientos"
+            >
+              <TrendingUp className="w-4 h-4 text-emerald-700" />
+              <span>Rendimientos</span>
+            </button>
+
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-black text-gray-800">{username}</p>
+              <p className="text-2xs font-extrabold text-[#b8952b] uppercase tracking-wider">{rol}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="p-2.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"
+              title="Cerrar Sesión"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+>>>>>>> Stashed changes
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
+<<<<<<< Updated upstream
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Botón de regreso */}
         <button 
           onClick={() => navigate('/')}
           className="flex items-center gap-2 text-gray-600 hover:text-rice-green font-bold mb-6 transition-colors group"
+=======
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+
+        {/* Botón de regreso */}
+        <button
+          onClick={() => navigate('/fincas')}
+          className="flex items-center gap-2 text-gray-500 hover:text-emerald-700 font-bold transition-all group"
+>>>>>>> Stashed changes
         >
           <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
           Volver a Fincas
         </button>
 
         {finca && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm mb-8 relative overflow-hidden"
           >
+<<<<<<< Updated upstream
             <div className="absolute top-0 right-0 w-32 h-32 bg-rice-green/5 rounded-bl-full -mr-4 -mt-4"></div>
             
+=======
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100/10 rounded-bl-full -mr-4 -mt-4"></div>
+
+>>>>>>> Stashed changes
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
               <div>
                 <span className="text-xs font-bold text-rice-emerald uppercase tracking-widest bg-rice-emerald/10 px-3 py-1 rounded-full">Finca Actual</span>
@@ -313,8 +431,13 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                   <span className="text-rice-green">{areaAsignadaLotes.toFixed(1)} / {areaTotalFinca} ha</span>
                 </div>
                 <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+<<<<<<< Updated upstream
                   <div 
                     className="bg-rice-green h-full rounded-full transition-all duration-500" 
+=======
+                  <div
+                    className="bg-emerald-600 h-full rounded-full transition-all duration-500"
+>>>>>>> Stashed changes
                     style={{ width: `${porcentajeAsignado}%` }}
                   />
                 </div>
@@ -326,12 +449,106 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
           </motion.div>
         )}
 
+<<<<<<< Updated upstream
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+=======
+        {/* 2. Barra de Búsqueda y Filtros Avanzados para Lotes */}
+        <section className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm space-y-6">
+          <div className="flex items-center gap-2 pb-4 border-b border-emerald-50">
+            <Filter className="w-5 h-5 text-emerald-600" />
+            <div>
+              <h3 className="text-base font-black text-gray-900">Búsqueda y Filtros de Lotes</h3>
+              <p className="text-2xs text-gray-500 font-bold">Filtra y clasifica tus lotes en tiempo real según características y tamaño de hectáreas</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+            {/* Buscador por Nombre */}
+            <div className="md:col-span-3 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Buscar Lote:</label>
+              <div className="relative w-full">
+                <Search className="absolute left-3.5 top-3.5 w-4.5 h-4.5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar por nombre..."
+                  className="w-full pl-11 pr-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl text-xs focus:border-emerald-500 focus:outline-none transition-all font-semibold text-gray-900"
+                />
+              </div>
+            </div>
+
+            {/* Filtro Hectáreas */}
+            <div className="md:col-span-3 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Hectáreas:</label>
+              <select
+                value={sizeFilter}
+                onChange={(e) => setSizeFilter(e.target.value)}
+                className="w-full px-3 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl text-2xs font-bold text-gray-700 cursor-pointer focus:outline-none focus:border-emerald-500"
+              >
+                <option value="ALL">Cualquier tamaño</option>
+                <option value="SMALL">Pequeños (&lt; 2 Ha)</option>
+                <option value="MEDIUM">Medianos (2 - 5 Ha)</option>
+                <option value="LARGE">Grandes (&gt; 5 Ha)</option>
+              </select>
+            </div>
+
+            {/* Tipo Suelo */}
+            <div className="md:col-span-2 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Suelo:</label>
+              <select
+                value={soilFilter}
+                onChange={(e) => setSoilFilter(e.target.value)}
+                className="w-full px-2 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl text-2xs font-bold text-gray-700 cursor-pointer focus:outline-none focus:border-emerald-500"
+              >
+                <option value="ALL">Todos</option>
+                <option value="FRANCO">Franco</option>
+                <option value="ARCILLOSO">Arcilloso</option>
+                <option value="ARENOSO">Arenoso</option>
+              </select>
+            </div>
+
+            {/* Sistema Producción */}
+            <div className="md:col-span-2 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Cultivo:</label>
+              <select
+                value={prodFilter}
+                onChange={(e) => setProdFilter(e.target.value)}
+                className="w-full px-2 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl text-2xs font-bold text-gray-700 cursor-pointer focus:outline-none focus:border-emerald-500"
+              >
+                <option value="ALL">Todos</option>
+                <option value="RIEGO">Riego</option>
+                <option value="SECANO">Secano</option>
+              </select>
+            </div>
+
+            {/* Estado */}
+            <div className="md:col-span-2 flex flex-col gap-1">
+              <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider pl-1">Estado:</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-2 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl text-2xs font-bold text-gray-700 cursor-pointer focus:outline-none focus:border-emerald-500"
+              >
+                <option value="ALL">Todos</option>
+                <option value="ACTIVO">Disponible</option>
+                <option value="PREPARACION">En Preparación</option>
+                <option value="EN_CICLO">En Ciclo</option>
+                <option value="COSECHADO">Cosechado</option>
+                <option value="DESCANSO">En Descanso</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        {/* Header grid */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+>>>>>>> Stashed changes
           <div>
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Lotes del Cultivo</h2>
             <p className="text-gray-500 font-medium">Planifica y gestiona las subdivisiones de la finca</p>
           </div>
-          
+
           {rol !== 'TECNICO' && finca && areaDisponible > 0.1 && (
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -364,8 +581,13 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
             <p className="text-gray-500 mb-6 max-w-sm mx-auto">
               Debes registrar al menos un lote para poder planificar análisis de suelo y ciclos de siembra de arroz.
             </p>
+<<<<<<< Updated upstream
             {rol !== 'TECNICO' && (
               <button 
+=======
+            {rol !== 'TECNICO' && lotes.length === 0 && (
+              <button
+>>>>>>> Stashed changes
                 onClick={() => setIsModalOpen(true)}
                 className="text-rice-green font-bold hover:text-[#154224] transition-colors"
               >
@@ -422,10 +644,16 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                   )}
                 </div>
 
+<<<<<<< Updated upstream
                 <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
                   <span className="text-sm font-bold text-rice-green group-hover:underline cursor-pointer">Ver Ciclos de Cultivo →</span>
                   
                   {/* Botones de acción en el Footer con control RBAC y parada de propagación */}
+=======
+                <div className="mt-6 pt-4 border-t border-emerald-50 flex justify-between items-center">
+                  <span className="text-xs font-bold text-emerald-700 group-hover:text-emerald-800 group-hover:underline cursor-pointer">Ver Ciclos de Cultivo →</span>
+
+>>>>>>> Stashed changes
                   {rol !== 'TECNICO' && (
                     <div className="flex gap-1.5">
                       <button
@@ -461,15 +689,15 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
               onClick={() => setIsModalOpen(false)}
             />
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -490,24 +718,42 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
 
               <form onSubmit={handleCreateLote} className="p-6 space-y-4">
                 <div>
+<<<<<<< Updated upstream
                   <label className="block text-sm font-bold text-gray-700 mb-1">Nombre del Lote</label>
                   <input 
                     type="text" required
                     value={nuevoLote.nombre}
                     onChange={(e) => setNuevoLote({...nuevoLote, nombre: e.target.value})}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald focus:border-transparent outline-none transition-all font-medium text-gray-900"
+=======
+                  <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Nombre del Lote</label>
+                  <input
+                    type="text" required
+                    value={nuevoLote.nombre}
+                    onChange={(e) => setNuevoLote({ ...nuevoLote, nombre: e.target.value })}
+                    className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all font-semibold text-gray-900"
+>>>>>>> Stashed changes
                     placeholder="Ej: Lote Norte A-1"
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
+<<<<<<< Updated upstream
                     <label className="block text-sm font-bold text-gray-700 mb-1">Área (Hectáreas)</label>
                     <input 
                       type="number" step="0.01" min="0.1" required
                       value={nuevoLote.area_hectareas}
                       onChange={(e) => setNuevoLote({...nuevoLote, area_hectareas: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+=======
+                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Área (Hectáreas)</label>
+                    <input
+                      type="number" step="0.01" min="0.1" required
+                      value={nuevoLote.area_hectareas}
+                      onChange={(e) => setNuevoLote({ ...nuevoLote, area_hectareas: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
+>>>>>>> Stashed changes
                       placeholder="Ej: 5.2"
                     />
                   </div>
@@ -515,8 +761,13 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                     <label className="block text-sm font-bold text-gray-700 mb-1">Estado Inicial</label>
                     <select
                       value={nuevoLote.estado}
+<<<<<<< Updated upstream
                       onChange={(e) => setNuevoLote({...nuevoLote, estado: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
+=======
+                      onChange={(e) => setNuevoLote({ ...nuevoLote, estado: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-gray-700 cursor-pointer"
+>>>>>>> Stashed changes
                     >
                       <option value="ACTIVO">Disponible</option>
                       <option value="PREPARACION">En Preparación</option>
@@ -530,8 +781,13 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                     <label className="block text-sm font-bold text-gray-700 mb-1">Tipo de Suelo</label>
                     <select
                       value={nuevoLote.tipo_suelo}
+<<<<<<< Updated upstream
                       onChange={(e) => setNuevoLote({...nuevoLote, tipo_suelo: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
+=======
+                      onChange={(e) => setNuevoLote({ ...nuevoLote, tipo_suelo: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-gray-700 cursor-pointer"
+>>>>>>> Stashed changes
                     >
                       <option value="FRANCO">Franco</option>
                       <option value="ARCILLOSO">Arcilloso</option>
@@ -542,8 +798,13 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                     <label className="block text-sm font-bold text-gray-700 mb-1">Sistema de Producción</label>
                     <select
                       value={nuevoLote.sistema_produccion}
+<<<<<<< Updated upstream
                       onChange={(e) => setNuevoLote({...nuevoLote, sistema_produccion: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
+=======
+                      onChange={(e) => setNuevoLote({ ...nuevoLote, sistema_produccion: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-gray-700 cursor-pointer"
+>>>>>>> Stashed changes
                     >
                       <option value="RIEGO">Riego</option>
                       <option value="SECANO">Secano</option>
@@ -553,37 +814,61 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
 
                 <div className="grid grid-cols-2 gap-4 border-t border-gray-50 pt-4">
                   <div>
+<<<<<<< Updated upstream
                     <label className="block text-sm font-bold text-gray-700 mb-1">Latitud GPS (Opcional)</label>
                     <input 
                       type="number" step="0.000001"
                       value={nuevoLote.latitud}
                       onChange={(e) => setNuevoLote({...nuevoLote, latitud: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+=======
+                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Latitud GPS</label>
+                    <input
+                      type="number" step="0.000001"
+                      value={nuevoLote.latitud}
+                      onChange={(e) => setNuevoLote({ ...nuevoLote, latitud: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
+>>>>>>> Stashed changes
                       placeholder="Ej: 4.123456"
                     />
                   </div>
                   <div>
+<<<<<<< Updated upstream
                     <label className="block text-sm font-bold text-gray-700 mb-1">Longitud GPS (Opcional)</label>
                     <input 
                       type="number" step="0.000001"
                       value={nuevoLote.longitud}
                       onChange={(e) => setNuevoLote({...nuevoLote, longitud: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+=======
+                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Longitud GPS</label>
+                    <input
+                      type="number" step="0.000001"
+                      value={nuevoLote.longitud}
+                      onChange={(e) => setNuevoLote({ ...nuevoLote, longitud: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
+>>>>>>> Stashed changes
                       placeholder="Ej: -74.987654"
                     />
                   </div>
                 </div>
 
+<<<<<<< Updated upstream
                 <div className="mt-8 flex gap-3 pt-4 border-t border-gray-100">
                   <button 
                     type="button" 
+=======
+                <div className="mt-8 flex gap-3 pt-4 border-t border-emerald-50">
+                  <button
+                    type="button"
+>>>>>>> Stashed changes
                     onClick={() => setIsModalOpen(false)}
                     className="flex-1 px-4 py-3 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
                   >
                     Cancelar
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={saving}
                     className="flex-1 px-4 py-3 text-white font-bold bg-rice-green hover:bg-[#154224] rounded-xl shadow-lg shadow-rice-green/30 transition-all flex justify-center items-center gap-2"
                   >
@@ -599,15 +884,15 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
       <AnimatePresence>
         {isEditModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
               onClick={() => setIsEditModalOpen(false)}
             />
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -628,31 +913,54 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
 
               <form onSubmit={handleEditLote} className="p-6 space-y-4">
                 <div>
+<<<<<<< Updated upstream
                   <label className="block text-sm font-bold text-gray-700 mb-1">Nombre del Lote</label>
                   <input 
                     type="text" required
                     value={editingLote.nombre}
                     onChange={(e) => setEditingLote({...editingLote, nombre: e.target.value})}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald focus:border-transparent outline-none transition-all font-medium text-gray-900"
+=======
+                  <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Nombre del Lote</label>
+                  <input
+                    type="text" required
+                    value={editingLote.nombre}
+                    onChange={(e) => setEditingLote({ ...editingLote, nombre: e.target.value })}
+                    className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all font-semibold text-gray-900"
+>>>>>>> Stashed changes
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
+<<<<<<< Updated upstream
                     <label className="block text-sm font-bold text-gray-700 mb-1">Área (Hectáreas)</label>
                     <input 
                       type="number" step="0.01" min="0.1" required
                       value={editingLote.area_hectareas}
                       onChange={(e) => setEditingLote({...editingLote, area_hectareas: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+=======
+                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Área (Hectáreas)</label>
+                    <input
+                      type="number" step="0.01" min="0.1" required
+                      value={editingLote.area_hectareas}
+                      onChange={(e) => setEditingLote({ ...editingLote, area_hectareas: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
+>>>>>>> Stashed changes
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Estado</label>
                     <select
                       value={editingLote.estado}
+<<<<<<< Updated upstream
                       onChange={(e) => setEditingLote({...editingLote, estado: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
+=======
+                      onChange={(e) => setEditingLote({ ...editingLote, estado: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-gray-700 cursor-pointer"
+>>>>>>> Stashed changes
                     >
                       <option value="ACTIVO">Disponible</option>
                       <option value="PREPARACION">En Preparación</option>
@@ -668,8 +976,13 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                     <label className="block text-sm font-bold text-gray-700 mb-1">Tipo de Suelo</label>
                     <select
                       value={editingLote.tipo_suelo}
+<<<<<<< Updated upstream
                       onChange={(e) => setEditingLote({...editingLote, tipo_suelo: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
+=======
+                      onChange={(e) => setEditingLote({ ...editingLote, tipo_suelo: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-gray-700 cursor-pointer"
+>>>>>>> Stashed changes
                     >
                       <option value="FRANCO">Franco</option>
                       <option value="ARCILLOSO">Arcilloso</option>
@@ -680,8 +993,13 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                     <label className="block text-sm font-bold text-gray-700 mb-1">Sistema de Producción</label>
                     <select
                       value={editingLote.sistema_produccion}
+<<<<<<< Updated upstream
                       onChange={(e) => setEditingLote({...editingLote, sistema_produccion: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-bold text-gray-700"
+=======
+                      onChange={(e) => setEditingLote({ ...editingLote, sistema_produccion: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-gray-700 cursor-pointer"
+>>>>>>> Stashed changes
                     >
                       <option value="RIEGO">Riego</option>
                       <option value="SECANO">Secano</option>
@@ -691,6 +1009,7 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
 
                 <div className="grid grid-cols-2 gap-4 border-t border-gray-50 pt-4">
                   <div>
+<<<<<<< Updated upstream
                     <label className="block text-sm font-bold text-gray-700 mb-1">Latitud GPS (Opcional)</label>
                     <input 
                       type="number" step="0.000001"
@@ -706,20 +1025,43 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                       value={editingLote.longitud}
                       onChange={(e) => setEditingLote({...editingLote, longitud: e.target.value})}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none transition-all font-medium text-gray-900"
+=======
+                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Latitud GPS</label>
+                    <input
+                      type="number" step="0.000001"
+                      value={editingLote.latitud}
+                      onChange={(e) => setEditingLote({ ...editingLote, latitud: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Longitud GPS</label>
+                    <input
+                      type="number" step="0.000001"
+                      value={editingLote.longitud}
+                      onChange={(e) => setEditingLote({ ...editingLote, longitud: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
+>>>>>>> Stashed changes
                     />
                   </div>
                 </div>
 
+<<<<<<< Updated upstream
                 <div className="mt-8 flex gap-3 pt-4 border-t border-gray-100">
                   <button 
                     type="button" 
+=======
+                <div className="mt-8 flex gap-3 pt-4 border-t border-emerald-50">
+                  <button
+                    type="button"
+>>>>>>> Stashed changes
                     onClick={() => setIsEditModalOpen(false)}
                     className="flex-1 px-4 py-3 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
                   >
                     Cancelar
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={saving}
                     className="flex-1 px-4 py-3 text-white font-bold bg-rice-green hover:bg-[#154224] rounded-xl shadow-lg shadow-rice-green/30 transition-all flex justify-center items-center gap-2"
                   >

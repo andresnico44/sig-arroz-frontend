@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+<<<<<<< Updated upstream
 import { 
   Tractor, Leaf, Coins, ShieldAlert, CheckCircle2, 
   MapPin, Sparkles, Sprout, ArrowRight, ArrowUpRight, 
   Settings, Users, ChevronRight, BarChart3
+=======
+import {
+  Tractor, Leaf, Coins, ShieldAlert, CheckCircle2,
+  Sparkles, Sprout, ArrowRight, ChevronRight
+>>>>>>> Stashed changes
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -66,6 +72,7 @@ export default function Landing() {
           </div>
 
           <div className="flex items-center gap-4">
+<<<<<<< Updated upstream
             <Link 
               to="/login" 
               className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-200"
@@ -75,6 +82,17 @@ export default function Landing() {
             <Link 
               to="/register" 
               className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-900/40 hover:shadow-emerald-700/40 transition-all duration-300 hover:-translate-y-0.5"
+=======
+            <Link
+              to="/login"
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:text-[#0D1A12] hover:bg-[#0D1A12]/5 border border-transparent hover:border-emerald-100 transition-all duration-200"
+            >
+              Iniciar Sesión
+            </Link>
+            <Link
+              to="/register"
+              className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-[#4C9A2A] hover:from-emerald-500 hover:to-emerald-400 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+>>>>>>> Stashed changes
             >
               Registrarse
             </Link>
@@ -84,13 +102,13 @@ export default function Landing() {
 
       {/* 2. Hero Section (Dos Columnas) */}
       <header className="max-w-7xl mx-auto px-6 py-12 md:py-20 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-        <motion.div 
+        <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
           className="lg:col-span-7 space-y-8"
         >
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/40 border border-emerald-900/40 text-emerald-400 text-xs font-bold"
           >
@@ -98,7 +116,7 @@ export default function Landing() {
             La plataforma definitiva para agricultura de precisión
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             variants={itemVariants}
             className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]"
           >
@@ -109,27 +127,39 @@ export default function Landing() {
             </span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             variants={itemVariants}
             className="text-base sm:text-lg text-gray-400 max-w-xl font-medium leading-relaxed"
           >
             Lleva el control absoluto de tus fincas y lotes. Toma decisiones basadas en calidad real de suelo, gestiona labores, monitorea plagas con GPS y controla el presupuesto de tu cosecha de arroz en tiempo real.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="flex flex-col sm:flex-row gap-4 pt-2"
           >
+<<<<<<< Updated upstream
             <Link 
               to="/register" 
               className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-[#4C9A2A] hover:from-emerald-500 hover:to-emerald-400 text-white rounded-2xl font-extrabold shadow-lg shadow-emerald-950/60 transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-1"
+=======
+            <Link
+              to="/register"
+              className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-[#4C9A2A] hover:from-emerald-500 hover:to-emerald-400 text-white rounded-2xl font-extrabold shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-1"
+>>>>>>> Stashed changes
             >
               Comienza Gratis
               <ArrowRight className="w-5 h-5" />
             </Link>
+<<<<<<< Updated upstream
             <a 
               href="#simulador" 
               className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 hover:border-white/20 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-1"
+=======
+            <a
+              href="#simulador"
+              className="px-8 py-4 bg-white hover:bg-emerald-50/50 text-[#0D1A12] border border-emerald-100 rounded-2xl font-bold shadow-sm transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-1"
+>>>>>>> Stashed changes
             >
               Probar Simulador
               <ChevronRight className="w-4 h-4 text-emerald-400" />
@@ -137,7 +167,7 @@ export default function Landing() {
           </motion.div>
 
           {/* Estadísticas Híbridas */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="pt-8 border-t border-emerald-950/40 grid grid-cols-3 gap-6 max-w-lg"
           >
@@ -156,8 +186,13 @@ export default function Landing() {
           </motion.div>
         </motion.div>
 
+<<<<<<< Updated upstream
         {/* Columna Derecha: El Simulador Wow de pH */}
         <motion.div 
+=======
+        {/* Columna Derecha: El Simulador de pH en Tono Claro */}
+        <motion.div
+>>>>>>> Stashed changes
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
@@ -165,10 +200,16 @@ export default function Landing() {
           className="lg:col-span-5"
         >
           <div className="relative group">
+<<<<<<< Updated upstream
             {/* Brillo de fondo interactivo */}
             <div className={`absolute -inset-0.5 rounded-3xl blur-2xl opacity-35 transition-all duration-500 ${
               isApt ? 'bg-emerald-500' : 'bg-red-500'
             }`}></div>
+=======
+            {/* Brillo de fondo interactivo suave */}
+            <div className={`absolute -inset-0.5 rounded-3xl blur-xl opacity-20 transition-all duration-500 ${isApt ? 'bg-emerald-500' : 'bg-red-500'
+              }`}></div>
+>>>>>>> Stashed changes
 
             <div className="relative bg-[#0b120e]/95 border border-emerald-900/30 rounded-3xl p-6 sm:p-8 backdrop-blur-xl space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-emerald-950/50">
@@ -184,20 +225,26 @@ export default function Landing() {
               {/* Slider de pH */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm font-bold">
+<<<<<<< Updated upstream
                   <span className="text-gray-400">Nivel de pH del Suelo:</span>
                   <span className={`text-xl font-black px-3 py-1 rounded-lg ${
                     isApt ? 'text-emerald-400 bg-emerald-950/40' : 'text-red-400 bg-red-950/40'
                   }`}>
+=======
+                  <span className="text-gray-500">Nivel de pH del Suelo:</span>
+                  <span className={`text-xl font-black px-3 py-1 rounded-lg ${isApt ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'
+                    }`}>
+>>>>>>> Stashed changes
                     {pH.toFixed(1)}
                   </span>
                 </div>
 
-                <input 
-                  type="range" 
-                  min="4.0" 
-                  max="8.0" 
-                  step="0.1" 
-                  value={pH} 
+                <input
+                  type="range"
+                  min="4.0"
+                  max="8.0"
+                  step="0.1"
+                  value={pH}
                   onChange={(e) => setPH(parseFloat(e.target.value))}
                   className="w-full h-2.5 bg-emerald-950/60 rounded-lg appearance-none cursor-pointer accent-emerald-500 focus:outline-none"
                 />
@@ -212,7 +259,7 @@ export default function Landing() {
               {/* Alerta de Aptitud de Suelo Dinámica */}
               <AnimatePresence mode="wait">
                 {!isApt ? (
-                  <motion.div 
+                  <motion.div
                     key="not-apt"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -228,7 +275,7 @@ export default function Landing() {
                     </div>
                   </motion.div>
                 ) : (
-                  <motion.div 
+                  <motion.div
                     key="apt"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -251,11 +298,18 @@ export default function Landing() {
                 <button
                   onClick={() => isApt && setShowSeedAnim(true)}
                   disabled={!isApt}
+<<<<<<< Updated upstream
                   className={`w-full py-3.5 rounded-2xl font-black text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
                     isApt 
                       ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white shadow-lg shadow-emerald-950/50 hover:shadow-emerald-900/50 hover:-translate-y-0.5' 
                       : 'bg-white/5 text-gray-500 border border-white/5 cursor-not-allowed'
                   }`}
+=======
+                  className={`w-full py-3.5 rounded-2xl font-black text-sm transition-all duration-300 flex items-center justify-center gap-2 ${isApt
+                      ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white shadow-md hover:-translate-y-0.5'
+                      : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                    }`}
+>>>>>>> Stashed changes
                 >
                   <Sprout className="w-4 h-4" />
                   {showSeedAnim ? '¡Ciclo de Cosecha Simulado!' : 'Simular Iniciar Ciclo'}
@@ -264,14 +318,19 @@ export default function Landing() {
                 {/* Zona de micro-animación de la germinación del arroz */}
                 <AnimatePresence>
                   {showSeedAnim && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       className="mt-4 pt-4 border-t border-emerald-950/50 flex flex-col items-center justify-center text-center space-y-2 bg-[#060a08]/40 rounded-2xl p-4 border border-emerald-950/30"
                     >
+<<<<<<< Updated upstream
                       <div className="relative w-16 h-16 bg-[#0D1A12] border border-emerald-900/30 rounded-2xl flex items-center justify-center overflow-hidden">
                         <motion.div 
+=======
+                      <div className="relative w-16 h-16 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner">
+                        <motion.div
+>>>>>>> Stashed changes
                           initial={{ scale: 0.5, y: 15 }}
                           animate={{ scale: 1, y: 0 }}
                           transition={{ type: 'spring', stiffness: 100, damping: 10 }}

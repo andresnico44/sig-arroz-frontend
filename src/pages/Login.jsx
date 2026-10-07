@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Leaf, Lock, Mail, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
@@ -58,7 +58,7 @@ export default function Login() {
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-rice-emerald rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-rice-green rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -80,13 +80,14 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-rice-dark mb-2">Correo Electrónico</label>
+            <label htmlFor="email" className="block text-sm font-semibold text-rice-dark mb-2">Correo Electrónico</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Mail className="h-5 w-5 text-gray-400" />
               </div>
-              <input 
-                type="email" 
+              <input
+                id="email"
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-rice-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rice-emerald focus:border-transparent transition-all duration-200"
@@ -97,13 +98,14 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-rice-dark mb-2">Contraseña</label>
+            <label htmlFor="password" className="block text-sm font-semibold text-rice-dark mb-2">Contraseña</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="h-5 w-5 text-gray-400" />
               </div>
-              <input 
-                type="password" 
+              <input
+                id="password"
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-rice-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rice-emerald focus:border-transparent transition-all duration-200"
@@ -118,7 +120,7 @@ export default function Login() {
             </div>
           </div>
 
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"

@@ -1,13 +1,30 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+<<<<<<< Updated upstream
 import { 
   ArrowLeft, Tractor, Sprout, CalendarDays, Plus, X, Loader, LogOut, 
   CheckCircle2, Clock, ShieldAlert, Droplet, Coins, MapPin, Sparkles, 
   AlertTriangle, Info, RefreshCw 
+=======
+import {
+  ArrowLeft, Tractor, Sprout, CalendarDays, Plus, X, Loader, LogOut,
+  CheckCircle2, Clock, ShieldAlert, Droplet, Coins, MapPin, Sparkles,
+  AlertTriangle, RefreshCw, Wheat, Printer, Scroll
+>>>>>>> Stashed changes
 } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
+import PreparacionTab from '../components/CicloTabs/PreparacionTab';
+import SiembraTab from '../components/CicloTabs/SiembraTab';
+import FenologiaTab from '../components/CicloTabs/FenologiaTab';
+import FitosanitarioTab from '../components/CicloTabs/FitosanitarioTab';
+import NutricionTab from '../components/CicloTabs/NutricionTab';
+import RiegoTab from '../components/CicloTabs/RiegoTab';
+import CostosTab from '../components/CicloTabs/CostosTab';
+import CosechaTab from '../components/CicloTabs/CosechaTab';
+import TrazabilidadTab from '../components/CicloTabs/TrazabilidadTab';
 
 export default function CicloDetalle() {
   const { loteId, cicloId } = useParams();
@@ -16,7 +33,7 @@ export default function CicloDetalle() {
 
   const loteData = location.state?.lote || { nombre: 'Cargando...' };
   const fincaData = location.state?.finca || { nombre: 'Cargando...' };
-  const cicloData = location.state?.ciclo || { nombre_ciclo: 'Cargando...', estado: 'PLANIFICADO', presupuesto_estimado: 0 };
+  const [cicloData, setCicloData] = useState(location.state?.ciclo || { nombre_ciclo: 'Cargando...', estado: 'PLANIFICADO', presupuesto_estimado: 0 });
 
   const [activeTab, setActiveTab] = useState('preparacion');
   const [loading, setLoading] = useState(true);
@@ -132,20 +149,17 @@ export default function CicloDetalle() {
     }
   }, [cicloId]);
 
-  useEffect(() => {
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-    fetchData();
-  }, [cicloId, token]);
-
   const fetchData = async () => {
     setLoading(true);
     try {
       const [
+<<<<<<< Updated upstream
         resPrep, resSiembra, resFeno, resMonitoreo, 
         resAplicaciones, resFertilizaciones, resRiegos, resCostos
+=======
+        resPrep, resSiembra, resFeno, resMonitoreo,
+        resAplicaciones, resFertilizaciones, resRiegos, resCostos, resCosechas, resLiquidaciones
+>>>>>>> Stashed changes
       ] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/preparacion/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${API_BASE_URL}/api/siembra/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -169,6 +183,21 @@ export default function CicloDetalle() {
       setFertilizaciones(resFertilizaciones.data);
       setRiegos(resRiegos.data);
       setCostos(resCostos.data);
+<<<<<<< Updated upstream
+=======
+      if (resCosechas.data && resCosechas.data.length > 0) {
+        setCosecha(resCosechas.data[0]);
+        setCicloData(prev => ({ ...prev, estado: 'COSECHADO' }));
+      } else {
+        setCosecha(null);
+      }
+      if (resLiquidaciones.data && resLiquidaciones.data.length > 0) {
+        setLiquidacion(resLiquidaciones.data[0]);
+        setCicloData(prev => ({ ...prev, estado: 'FINALIZADO' }));
+      } else {
+        setLiquidacion(null);
+      }
+>>>>>>> Stashed changes
     } catch (err) {
       console.error(err);
       alert('Error al cargar la información del ciclo.');
@@ -176,6 +205,15 @@ export default function CicloDetalle() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cicloId, token]);
 
   // Sincronizar registros guardados offline
   const handleSyncOffline = async () => {
@@ -200,7 +238,7 @@ export default function CicloDetalle() {
     setOfflineMonitoreos(remaining);
     localStorage.setItem(`offline_monitoreos_${cicloId}`, JSON.stringify(remaining));
     setSyncing(false);
-    
+
     if (successCount > 0) {
       alert(`¡Sincronización exitosa! Se subieron ${successCount} monitoreos.`);
       fetchData();
@@ -222,8 +260,13 @@ export default function CicloDetalle() {
       }, { headers: { Authorization: `Bearer ${token}` } });
       setPreparaciones([response.data, ...preparaciones]);
       setIsModalPrepOpen(false);
+<<<<<<< Updated upstream
       setNuevaPrep({ fecha: new Date().toISOString().split('T')[0], labor: 'RASTRA', horas_maquina: '', combustible_galones: '', costo_hora: '', observaciones: '' });
       
+=======
+      setNuevaPrep({ fecha: new Date().toISOString().split('T')[0], tipo_ejecucion: 'MECANIZADA', labor: 'RASTRA', condicion_humedad: 'CAPACIDAD_CAMPO', horas_maquina: '', combustible_galones: '', costo_hora: '', observaciones: '' });
+
+>>>>>>> Stashed changes
       // Recargar costos
       const resCostos = await axios.get(`${API_BASE_URL}/api/costos/?ciclo_id=${cicloId}`, { headers: { Authorization: `Bearer ${token}` } });
       setCostos(resCostos.data);
@@ -246,6 +289,10 @@ export default function CicloDetalle() {
         germinacion_porcentaje: parseFloat(nuevaSiembra.germinacion_porcentaje)
       }, { headers: { Authorization: `Bearer ${token}` } });
       setSiembra(response.data);
+<<<<<<< Updated upstream
+=======
+      setCicloData(prev => ({ ...prev, estado: 'EJECUCION', fecha_inicio_real: response.data.fecha }));
+>>>>>>> Stashed changes
       alert("¡Siembra registrada con éxito! El cultivo ahora está EN EJECUCIÓN.");
     } catch (err) {
       console.error(err);
@@ -274,26 +321,7 @@ export default function CicloDetalle() {
     }
   };
 
-  // Geolocalización Nativa
-  const capturarGPS = () => {
-    if (!navigator.geolocation) {
-      alert("Tu navegador no soporta geolocalización.");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setNuevoMonitoreo({
-          ...nuevoMonitoreo,
-          latitud: position.coords.latitude.toFixed(6),
-          longitud: position.coords.longitude.toFixed(6)
-        });
-      },
-      (error) => {
-        console.error(error);
-        alert("No se pudo obtener la geolocalización. Asegúrate de otorgar permisos.");
-      }
-    );
-  };
+
 
   // Registrar Monitoreo Fitosanitario (Soporte Offline)
   const handleCreateMonitoreo = async (e) => {
@@ -312,7 +340,7 @@ export default function CicloDetalle() {
         ...payload,
         ciclo: parseInt(cicloId)
       }, { headers: { Authorization: `Bearer ${token}` } });
-      
+
       setMonitoreos([response.data, ...monitoreos]);
       setIsModalMonitoreoOpen(false);
       setNuevoMonitoreo({
@@ -326,12 +354,12 @@ export default function CicloDetalle() {
       });
     } catch (err) {
       console.error("Error al registrar monitoreo, intentando almacenamiento local offline:", err);
-      
+
       // Persistencia Offline en LocalStorage
       const currentOffline = [...offlineMonitoreos, { ...payload, id_offline: Date.now() }];
       setOfflineMonitoreos(currentOffline);
       localStorage.setItem(`offline_monitoreos_${cicloId}`, JSON.stringify(currentOffline));
-      
+
       setIsModalMonitoreoOpen(false);
       setNuevoMonitoreo({
         fecha: new Date().toISOString().split('T')[0],
@@ -492,6 +520,147 @@ export default function CicloDetalle() {
     }
   };
 
+<<<<<<< Updated upstream
+=======
+  // Registrar Cosecha (HU-013)
+  const handleCreateCosecha = async (e) => {
+    e.preventDefault();
+    if (saving) return;
+    setSaving(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/cosechas/`, {
+        ...nuevaCosecha,
+        ciclo: parseInt(cicloId),
+        produccion_obtenida_kg: parseFloat(nuevaCosecha.produccion_obtenida_kg),
+        humedad_grano_porcentaje: parseFloat(nuevaCosecha.humedad_grano_porcentaje),
+        impurezas_porcentaje: parseFloat(nuevaCosecha.impurezas_porcentaje) || 0
+      }, { headers: { Authorization: `Bearer ${token}` } });
+
+      setCosecha(response.data);
+      setCicloData(prev => ({ ...prev, estado: 'COSECHADO' }));
+      setIsModalCosechaOpen(false);
+      setNuevaCosecha({
+        fecha: new Date().toISOString().split('T')[0],
+        produccion_obtenida_kg: '',
+        humedad_grano_porcentaje: '',
+        impurezas_porcentaje: '0',
+        condiciones_cosecha: ''
+      });
+      showToast('¡Cosecha registrada! El cultivo ha finalizado sus operaciones.', 'success');
+    } catch (err) {
+      console.error(err);
+      alert('Error al registrar la cosecha.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const calcularIngresoNeto = () => {
+    if (!cosecha || !nuevaLiquidacion.precio_tonelada_cop) return 0;
+    const precio = parseFloat(nuevaLiquidacion.precio_tonelada_cop) || 0;
+    const descuentos = parseFloat(nuevaLiquidacion.descuentos_aplicados_cop) || 0;
+    const toneladas = parseFloat(cosecha.produccion_obtenida_kg) / 1000;
+    return (toneladas * precio) - descuentos;
+  };
+
+  const handleCreateLiquidacion = async (e) => {
+    e.preventDefault();
+    if (saving) return;
+    setSaving(true);
+    try {
+      const ingresoNetoCalculado = calcularIngresoNeto();
+      const response = await axios.post(`${API_BASE_URL}/api/liquidaciones/`, {
+        ...nuevaLiquidacion,
+        ciclo: parseInt(cicloId),
+        humedad_final_porcentaje: parseFloat(nuevaLiquidacion.humedad_final_porcentaje),
+        porcentaje_grano_entero: parseFloat(nuevaLiquidacion.porcentaje_grano_entero),
+        porcentaje_grano_quebrado: parseFloat(nuevaLiquidacion.porcentaje_grano_quebrado),
+        precio_tonelada_cop: parseFloat(nuevaLiquidacion.precio_tonelada_cop),
+        descuentos_aplicados_cop: parseFloat(nuevaLiquidacion.descuentos_aplicados_cop) || 0,
+        ingreso_neto_cop: ingresoNetoCalculado
+      }, { headers: { Authorization: `Bearer ${token}` } });
+
+      setLiquidacion(response.data);
+      setCicloData(prev => ({ ...prev, estado: 'FINALIZADO' }));
+      setIsModalLiquidacionOpen(false);
+      setNuevaLiquidacion({
+        fecha: new Date().toISOString().split('T')[0],
+        humedad_final_porcentaje: '',
+        porcentaje_grano_entero: '',
+        porcentaje_grano_quebrado: '',
+        precio_tonelada_cop: '',
+        descuentos_aplicados_cop: '0',
+        ingreso_neto_cop: '',
+        observaciones: ''
+      });
+      showToast('¡Liquidación asentada con éxito! El ciclo se ha completado.', 'success');
+      fetchData(); // Recargar datos locales
+    } catch (err) {
+      console.error(err);
+      alert('Error al registrar la liquidación.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const fetchTrazabilidad = async () => {
+    setLoadingTrazabilidad(true);
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/ciclos/${cicloId}/trazabilidad/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTrazabilidad(res.data);
+    } catch (err) {
+      console.error(err);
+      alert('Error al cargar la trazabilidad completa del ciclo.');
+    } finally {
+      setLoadingTrazabilidad(false);
+    }
+  };
+
+  const confirmDeleteCosto = async () => {
+    if (!costoAEliminar) return;
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_BASE_URL}/api/costos/${costoAEliminar}/`, { headers: { Authorization: `Bearer ${token}` } });
+      const newCostos = costos.filter(c => c.id !== costoAEliminar);
+      setCostos(newCostos);
+      setCostoAEliminar(null);
+    } catch (err) {
+      console.error(err);
+      alert('Error al eliminar el costo.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEditCostoSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put(`${API_BASE_URL}/api/costos/${costoEditando.id}/`, costoEditando, { headers: { Authorization: `Bearer ${token}` } });
+      const newCostos = costos.map(c => c.id === costoEditando.id ? response.data : c);
+      setCostos(newCostos);
+      setIsModalEditCostoOpen(false);
+      setCostoEditando(null);
+    } catch (err) {
+      console.error(err);
+      alert('Error al editar el costo.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'trazabilidad') {
+      fetchTrazabilidad();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+>>>>>>> Stashed changes
   // Diccionarios de etiquetas
   const laborToLabel = {
     'RASTRA': 'Pase de Rastra',
@@ -532,6 +701,43 @@ export default function CicloDetalle() {
   const presupuestoEstimado = parseFloat(cicloData.presupuesto_estimado) || 0;
   const porcentajePresupuesto = presupuestoEstimado > 0 ? (totalCostosDirectos / presupuestoEstimado) * 100 : 0;
 
+<<<<<<< Updated upstream
+=======
+  const getEstadoBadge = (estado) => {
+    switch (estado) {
+      case 'PLANIFICADO': return <span className="text-sm font-bold uppercase tracking-wider px-3 py-1.5 border rounded-xl bg-amber-50 text-amber-700 border-amber-200">PLANIFICADO</span>;
+      case 'EJECUCION': return <span className="text-sm font-bold uppercase tracking-wider px-3 py-1.5 border rounded-xl bg-blue-50 text-blue-700 border-blue-200">EN EJECUCIÓN</span>;
+      case 'COSECHADO': return <span className="text-sm font-bold uppercase tracking-wider px-3 py-1.5 border rounded-xl bg-orange-50 text-orange-700 border-orange-200">COSECHADO</span>;
+      case 'FINALIZADO': return <span className="text-sm font-bold uppercase tracking-wider px-3 py-1.5 border rounded-xl bg-emerald-50 text-emerald-700 border-emerald-200">FINALIZADO</span>;
+      default: return <span className="text-sm font-bold uppercase tracking-wider px-3 py-1.5 border rounded-xl bg-gray-50 text-gray-700 border-gray-200">{estado || 'DESCONOCIDO'}</span>;
+    }
+  };
+
+
+  const tabProps = {
+    loteData, fincaData, cicloData,
+    preparaciones, siembra, fenologia, monitoreos, aplicaciones, fertilizaciones, riegos, costos, offlineMonitoreos, cosecha, liquidacion, trazabilidad,
+    isModalPrepOpen, isModalFenoOpen, isModalMonitoreoOpen, isModalAplicacionOpen, isModalFertilizacionOpen, isModalRiegoOpen, isModalCostoOpen, isModalCosechaOpen, isModalLiquidacionOpen,
+    nuevaPrep, nuevaSiembra, nuevaFeno, nuevoMonitoreo, nuevaAplicacion, nuevaFertilizacion, nuevoRiego, nuevoCosto, nuevaCosecha, nuevaLiquidacion,
+    saving, syncing, loadingTrazabilidad,
+    faseToLabel: {
+      'GERMINACION': 'Germinación (0-15 días)',
+      'PLANTULA': 'Plántula (15-30 días)',
+      'MACOLLAMIENTO': 'Macollamiento (30-60 días)',
+      'INICIACION_PANICULA': 'Iniciación Panícula (60-75 días)',
+      'FLORACION': 'Floración (75-90 días)',
+      'MADURACION': 'Maduración (90-120 días)'
+    },
+    setIsModalPrepOpen, setIsModalFenoOpen, setIsModalMonitoreoOpen, setIsModalAplicacionOpen, setIsModalFertilizacionOpen, setIsModalRiegoOpen, setIsModalCostoOpen, setIsModalCosechaOpen, setIsModalLiquidacionOpen,
+    setNuevaPrep, setNuevaSiembra, setNuevaFeno, setNuevoMonitoreo, setNuevaAplicacion, setNuevaFertilizacion, setNuevoRiego, setNuevoCosto, setNuevaCosecha, setNuevaLiquidacion,
+    setActiveTab,
+    handleCreatePrep, handleCreateSiembra, handleCreateFeno,
+    handleCreateMonitoreo, handleCreateAplicacion, handleCreateFertilizacion, handleCreateRiego,
+    handleCreateCosto, handleCreateCosecha, handleCreateLiquidacion,
+    handleSyncOffline,
+    formatCOP, laborToLabel
+  };
+>>>>>>> Stashed changes
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
@@ -557,7 +763,7 @@ export default function CicloDetalle() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <button 
+        <button
           onClick={() => navigate(`/lotes/${loteId}/gestion`, { state: { lote: loteData, finca: fincaData } })}
           className="flex items-center gap-2 text-gray-600 hover:text-rice-green font-bold mb-6 transition-colors group"
         >
@@ -610,6 +816,7 @@ export default function CicloDetalle() {
           ) : (
             <AnimatePresence mode="wait">
               {/* TAB 1: PREPARACIÓN */}
+<<<<<<< Updated upstream
               {activeTab === 'preparacion' && (
                 <motion.div key="prep" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                   <div className="flex justify-between items-center mb-6">
@@ -655,71 +862,15 @@ export default function CicloDetalle() {
                   )}
                 </motion.div>
               )}
+=======
+              {activeTab === 'preparacion' && <PreparacionTab {...tabProps} />}
+>>>>>>> Stashed changes
 
               {/* TAB 2: SIEMBRA */}
-              {activeTab === 'siembra' && (
-                <motion.div key="siem" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  {!siembra ? (
-                    <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-                      <h2 className="text-xl font-bold text-gray-900 mb-6">Registrar Siembra Principal</h2>
-                      <form onSubmit={handleCreateSiembra} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                          <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Fecha de Siembra</label>
-                            <input type="date" required value={nuevaSiembra.fecha} onChange={e => setNuevaSiembra({...nuevaSiembra, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Método</label>
-                            <select value={nuevaSiembra.metodo} onChange={e => setNuevaSiembra({...nuevaSiembra, metodo: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
-                              <option value="VOLEO">Al Voleo</option>
-                              <option value="MECANIZADA">Sembradora Mecanizada</option>
-                              <option value="TRANSPLANTE">Transplante</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Dosis (Kg/Ha)</label>
-                            <input type="number" step="0.1" required value={nuevaSiembra.dosis_kg_ha} onChange={e => setNuevaSiembra({...nuevaSiembra, dosis_kg_ha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 120" />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Germinación Esperada (%)</label>
-                            <input type="number" step="1" max="100" required value={nuevaSiembra.germinacion_porcentaje} onChange={e => setNuevaSiembra({...nuevaSiembra, germinacion_porcentaje: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 95" />
-                          </div>
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Tratamiento de Semilla</label>
-                            <input type="text" value={nuevaSiembra.tratamiento_semilla} onChange={e => setNuevaSiembra({...nuevaSiembra, tratamiento_semilla: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Fungicidas aplicados..." />
-                          </div>
-                        </div>
-                        <button type="submit" disabled={saving} className="bg-rice-emerald text-white px-6 py-3 rounded-xl font-bold shadow-md hover:bg-emerald-600 transition-colors w-full flex justify-center items-center gap-2">
-                          {saving ? <Loader className="animate-spin w-5 h-5" /> : 'Confirmar Siembra e Iniciar Ciclo'}
-                        </button>
-                      </form>
-                    </div>
-                  ) : (
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-3xl p-8 shadow-sm relative overflow-hidden">
-                      <Sprout className="absolute -bottom-10 -right-10 w-64 h-64 text-emerald-200/50" />
-                      <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-6">
-                          <CheckCircle2 className="w-8 h-8 text-emerald-600" />
-                          <h2 className="text-2xl font-extrabold text-emerald-900">Siembra Establecida</h2>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-white/60 p-6 rounded-2xl backdrop-blur-sm border border-emerald-100">
-                          <div><p className="text-sm font-semibold text-emerald-800">Fecha Real</p><p className="text-lg font-bold text-emerald-950">{siembra.fecha}</p></div>
-                          <div><p className="text-sm font-semibold text-emerald-800">Método</p><p className="text-lg font-bold text-emerald-950">{siembra.metodo}</p></div>
-                          <div><p className="text-sm font-semibold text-emerald-800">Dosis</p><p className="text-lg font-bold text-emerald-950">{siembra.dosis_kg_ha} Kg/Ha</p></div>
-                          <div><p className="text-sm font-semibold text-emerald-800">Germinación</p><p className="text-lg font-bold text-emerald-950">{siembra.germinacion_porcentaje}%</p></div>
-                        </div>
-                        {siembra.tratamiento_semilla && (
-                          <div className="mt-4 text-sm font-semibold text-emerald-800 bg-emerald-100/50 px-4 py-2 rounded-xl inline-block">
-                            Tratamiento: {siembra.tratamiento_semilla}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              )}
+              {activeTab === 'siembra' && <SiembraTab {...tabProps} />}
 
               {/* TAB 3: FENOLOGÍA */}
+<<<<<<< Updated upstream
               {activeTab === 'fenologia' && (
                 <motion.div key="feno" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                   {!siembra ? (
@@ -1113,6 +1264,27 @@ export default function CicloDetalle() {
                   </div>
                 </motion.div>
               )}
+=======
+              {activeTab === 'fenologia' && <FenologiaTab {...tabProps} />}
+
+              {/* TAB 4: SANIDAD FITOSANITARIA (SOPORTE OFFLINE + GPS) */}
+              {activeTab === 'fitosanitario' && <FitosanitarioTab {...tabProps} />}
+
+              {/* TAB 5: NUTRICIÓN Y FERTILIZACIÓN */}
+              {activeTab === 'nutricion' && <NutricionTab {...tabProps} />}
+
+              {/* TAB 6: RIEGO Y MANEJO HÍDRICO */}
+              {activeTab === 'riego' && <RiegoTab {...tabProps} />}
+
+              {/* TAB 7: BILLETERA DE COSTOS (MANUALES Y AUTOMÁTICOS) */}
+              {activeTab === 'costos' && <CostosTab {...tabProps} />}
+
+              {/* TAB 8: COSECHA */}
+              {activeTab === 'cosecha' && <CosechaTab {...tabProps} />}
+
+              {/* TAB 9: TRAZABILIDAD COMPLETA (RF-41 & HU-14) */}
+              {activeTab === 'trazabilidad' && <TrazabilidadTab {...tabProps} />}
+>>>>>>> Stashed changes
             </AnimatePresence>
           )}
         </div>
@@ -1128,6 +1300,7 @@ export default function CicloDetalle() {
                 <button onClick={() => setIsModalPrepOpen(false)} className="p-1 text-gray-400 hover:bg-gray-200 rounded-full"><X className="w-5 h-5" /></button>
               </div>
               <form onSubmit={handleCreatePrep} className="p-6 space-y-4">
+<<<<<<< Updated upstream
                 <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevaPrep.fecha} onChange={e => setNuevaPrep({...nuevaPrep, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Labor</label>
@@ -1144,6 +1317,61 @@ export default function CicloDetalle() {
                   <input type="number" step="1" min="0" required value={nuevaPrep.costo_hora} onChange={e => setNuevaPrep({...nuevaPrep, costo_hora: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 80000" />
                 </div>
                 <div><label className="block text-sm font-bold text-gray-700 mb-1">Observaciones</label><textarea rows="2" value={nuevaPrep.observaciones} onChange={e => setNuevaPrep({...nuevaPrep, observaciones: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+=======
+                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevaPrep.fecha} onChange={e => setNuevaPrep({ ...nuevaPrep, fecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Ejecución</label>
+                    <select value={nuevaPrep.tipo_ejecucion} onChange={e => setNuevaPrep({ ...nuevaPrep, tipo_ejecucion: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                      <option value="MECANIZADA">Mecanizada (Tractor)</option>
+                      <option value="MANUAL">Manual / Operario</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Labor</label>
+                    <select value={nuevaPrep.labor} onChange={e => setNuevaPrep({ ...nuevaPrep, labor: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                      {Object.entries(laborToLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Condición Humedad</label>
+                  <select value={nuevaPrep.condicion_humedad} onChange={e => setNuevaPrep({ ...nuevaPrep, condicion_humedad: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                    <option value="SECO">Suelo Seco</option>
+                    <option value="CAPACIDAD_CAMPO">Cap. de Campo (Ideal)</option>
+                    <option value="SATURADO">Saturado / Lodo</option>
+                  </select>
+                </div>
+
+                {nuevaPrep.condicion_humedad !== 'CAPACIDAD_CAMPO' && (
+                  <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-3 flex gap-3 text-xs shadow-sm">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                    <div>
+                      <strong>⚠️ Advertencia Agronómica:</strong>
+                      <p className="mt-0.5">El uso de maquinaria en suelo {nuevaPrep.condicion_humedad === 'SATURADO' ? 'saturado causa compactación severa (piso de arado)' : 'seco pulveriza y daña la estructura del terreno'}. ¿Seguro de proceder?</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className={`grid ${nuevaPrep.tipo_ejecucion === 'MECANIZADA' ? 'grid-cols-2' : 'grid-cols-1'} gap-4`}>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">{nuevaPrep.tipo_ejecucion === 'MECANIZADA' ? 'Horas Tractor' : 'Cantidad (Jornales/Horas)'}</label>
+                    <input type="number" step="0.1" min="0" required value={nuevaPrep.horas_maquina} onChange={e => setNuevaPrep({ ...nuevaPrep, horas_maquina: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder={nuevaPrep.tipo_ejecucion === 'MECANIZADA' ? "Ej: 2.5" : "Ej: 4"} />
+                  </div>
+                  {nuevaPrep.tipo_ejecucion === 'MECANIZADA' && (
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">Combustible (Gal)</label>
+                      <input type="number" step="0.1" min="0" value={nuevaPrep.combustible_galones} onChange={e => setNuevaPrep({ ...nuevaPrep, combustible_galones: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 10" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">{nuevaPrep.tipo_ejecucion === 'MECANIZADA' ? 'Costo por Hora (COP)' : 'Costo Unitario (COP)'}</label>
+                  <input type="number" step="1" min="0" required value={nuevaPrep.costo_hora} onChange={e => setNuevaPrep({ ...nuevaPrep, costo_hora: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 80000" />
+                </div>
+                <div><label className="block text-sm font-bold text-gray-700 mb-1">Observaciones</label><textarea rows="3" style={{ resize: 'none' }} value={nuevaPrep.observaciones} onChange={e => setNuevaPrep({ ...nuevaPrep, observaciones: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+>>>>>>> Stashed changes
                 <button type="submit" disabled={saving} className="w-full bg-rice-green text-white py-3 rounded-xl font-bold shadow-md shadow-rice-green/35 hover:bg-[#154224] transition-colors">{saving ? <Loader className="animate-spin w-5 h-5 mx-auto" /> : 'Guardar e inyectar costo'}</button>
               </form>
             </motion.div>
@@ -1161,6 +1389,7 @@ export default function CicloDetalle() {
                 <button onClick={() => setIsModalFenoOpen(false)} className="p-1 text-gray-400 hover:bg-gray-200 rounded-full"><X className="w-5 h-5" /></button>
               </div>
               <form onSubmit={handleCreateFeno} className="p-6 space-y-4">
+<<<<<<< Updated upstream
                 <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha Detectada en Campo</label><input type="date" required value={nuevaFeno.fecha} onChange={e => setNuevaFeno({...nuevaFeno, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Fase Vegetativa/Reproductiva</label>
@@ -1169,6 +1398,38 @@ export default function CicloDetalle() {
                   </select>
                 </div>
                 <div><label className="block text-sm font-bold text-gray-700 mb-1">Observaciones (Sanidad, vigor)</label><textarea rows="3" value={nuevaFeno.observaciones} onChange={e => setNuevaFeno({...nuevaFeno, observaciones: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+=======
+                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha Detectada en Campo</label><input type="date" required min={siembra?.fecha || ''} value={nuevaFeno.fecha} onChange={e => setNuevaFeno({ ...nuevaFeno, fecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Fase Vegetativa/Reproductiva</label>
+                    <select value={nuevaFeno.fase} onChange={e => setNuevaFeno({ ...nuevaFeno, fase: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                      {Object.entries(faseToLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Estado / Vigor General</label>
+                    <select value={nuevaFeno.estado_general} onChange={e => setNuevaFeno({ ...nuevaFeno, estado_general: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                      <option value="EXCELENTE">Excelente Vigor</option>
+                      <option value="BUENO">Buen Desarrollo</option>
+                      <option value="REGULAR">Desarrollo Regular / Atraso</option>
+                      <option value="MALO">Deficiente / Estrés Severo</option>
+                    </select>
+                  </div>
+                </div>
+
+                {(nuevaFeno.estado_general === 'MALO' || nuevaFeno.estado_general === 'REGULAR') && (
+                  <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-3 flex gap-3 text-xs shadow-sm">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                    <div>
+                      <strong>⚠️ Advertencia Agronómica:</strong>
+                      <p className="mt-0.5">El cultivo presenta estrés o deficiencia. Se recomienda agendar un monitoreo fitosanitario o nutricional de inmediato para identificar la causa.</p>
+                    </div>
+                  </div>
+                )}
+
+                <div><label className="block text-sm font-bold text-gray-700 mb-1">Observaciones (Sanidad, vigor)</label><textarea rows="3" style={{ resize: 'none' }} value={nuevaFeno.observaciones} onChange={e => setNuevaFeno({ ...nuevaFeno, observaciones: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+>>>>>>> Stashed changes
                 <button type="submit" disabled={saving} className="w-full bg-rice-green text-white py-3 rounded-xl font-bold shadow-md shadow-rice-green/35 hover:bg-[#154224] transition-colors">{saving ? <Loader className="animate-spin w-5 h-5 mx-auto" /> : 'Registrar Fase'}</button>
               </form>
             </motion.div>
@@ -1186,12 +1447,17 @@ export default function CicloDetalle() {
                 <button onClick={() => setIsModalMonitoreoOpen(false)} className="p-1 text-gray-400 hover:bg-gray-200 rounded-full"><X className="w-5 h-5" /></button>
               </div>
               <form onSubmit={handleCreateMonitoreo} className="p-6 space-y-4">
+<<<<<<< Updated upstream
                 <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevoMonitoreo.fecha} onChange={e => setNuevoMonitoreo({...nuevoMonitoreo, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
                 
+=======
+                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevoMonitoreo.fecha} onChange={e => setNuevoMonitoreo({ ...nuevoMonitoreo, fecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+
+>>>>>>> Stashed changes
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Tipo Amenaza</label>
-                    <select value={nuevoMonitoreo.tipo_problema} onChange={e => setNuevoMonitoreo({...nuevoMonitoreo, tipo_problema: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                    <select value={nuevoMonitoreo.tipo_problema} onChange={e => setNuevoMonitoreo({ ...nuevoMonitoreo, tipo_problema: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
                       <option value="PLAGA">Plaga</option>
                       <option value="ENFERMEDAD">Enfermedad</option>
                       <option value="MALEZA">Maleza</option>
@@ -1199,18 +1465,18 @@ export default function CicloDetalle() {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Nombre Común</label>
-                    <input type="text" required value={nuevoMonitoreo.nombre_comun} onChange={e => setNuevoMonitoreo({...nuevoMonitoreo, nombre_comun: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Sogata" />
+                    <input type="text" required value={nuevoMonitoreo.nombre_comun} onChange={e => setNuevoMonitoreo({ ...nuevoMonitoreo, nombre_comun: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Sogata" />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Umbral de Daño Observado (%)</label>
-                  <input type="number" step="0.01" min="0" max="100" required value={nuevoMonitoreo.umbral_danio_porcentaje} onChange={e => setNuevoMonitoreo({...nuevoMonitoreo, umbral_danio_porcentaje: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 12.5" />
+                  <input type="number" step="0.01" min="0" max="100" required value={nuevoMonitoreo.umbral_danio_porcentaje} onChange={e => setNuevoMonitoreo({ ...nuevoMonitoreo, umbral_danio_porcentaje: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 12.5" />
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Decisión Técnica Recomendada</label>
-                  <textarea rows="2" required value={nuevoMonitoreo.decision_tecnica} onChange={e => setNuevoMonitoreo({...nuevoMonitoreo, decision_tecnica: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Monitorear por 3 días más..." />
+                  <textarea rows="2" required value={nuevoMonitoreo.decision_tecnica} onChange={e => setNuevoMonitoreo({ ...nuevoMonitoreo, decision_tecnica: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Monitorear por 3 días más..." />
                 </div>
 
                 <div className="border border-dashed border-gray-250 rounded-2xl p-4 bg-gray-50/50">
@@ -1250,10 +1516,14 @@ export default function CicloDetalle() {
               </div>
               <form onSubmit={handleCreateAplicacion} className="p-6 space-y-4 max-h-[500px] overflow-y-auto">
                 <div className="grid grid-cols-2 gap-4">
+<<<<<<< Updated upstream
                   <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevaAplicacion.fecha} onChange={e => setNuevaAplicacion({...nuevaAplicacion, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+=======
+                  <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevaAplicacion.fecha} onChange={e => setNuevaAplicacion({ ...nuevaAplicacion, fecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+>>>>>>> Stashed changes
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Monitoreo Relacionado</label>
-                    <select value={nuevaAplicacion.monitoreo} onChange={e => setNuevaAplicacion({...nuevaAplicacion, monitoreo: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none text-sm">
+                    <select value={nuevaAplicacion.monitoreo} onChange={e => setNuevaAplicacion({ ...nuevaAplicacion, monitoreo: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none text-sm">
                       <option value="">Ninguno / Preventivo</option>
                       {monitoreos.map(m => <option key={m.id} value={m.id}>{m.nombre_comun} ({m.fecha})</option>)}
                     </select>
@@ -1263,22 +1533,22 @@ export default function CicloDetalle() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Nombre Comercial</label>
-                    <input type="text" required value={nuevaAplicacion.nombre_comercial} onChange={e => setNuevaAplicacion({...nuevaAplicacion, nombre_comercial: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Roundup" />
+                    <input type="text" required value={nuevaAplicacion.nombre_comercial} onChange={e => setNuevaAplicacion({ ...nuevaAplicacion, nombre_comercial: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Roundup" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Ingrediente Activo</label>
-                    <input type="text" required value={nuevaAplicacion.ingrediente_activo} onChange={e => setNuevaAplicacion({...nuevaAplicacion, ingrediente_activo: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Glifosato" />
+                    <input type="text" required value={nuevaAplicacion.ingrediente_activo} onChange={e => setNuevaAplicacion({ ...nuevaAplicacion, ingrediente_activo: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Glifosato" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Dosis (L/Ha o Kg/Ha)</label>
-                    <input type="number" step="0.01" min="0" required value={nuevaAplicacion.dosis_por_ha} onChange={e => setNuevaAplicacion({...nuevaAplicacion, dosis_por_ha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 2.5" />
+                    <input type="number" step="0.01" min="0" required value={nuevaAplicacion.dosis_por_ha} onChange={e => setNuevaAplicacion({ ...nuevaAplicacion, dosis_por_ha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 2.5" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Equipo de Aspersión</label>
-                    <select value={nuevaAplicacion.equipo_aspersion} onChange={e => setNuevaAplicacion({...nuevaAplicacion, equipo_aspersion: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                    <select value={nuevaAplicacion.equipo_aspersion} onChange={e => setNuevaAplicacion({ ...nuevaAplicacion, equipo_aspersion: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
                       <option value="BOMBA_ESPALDA">Bomba de Espalda (Manual)</option>
                       <option value="DRON">Dron Agrícola</option>
                       <option value="TRACTOR">Tractor / Aguilón</option>
@@ -1299,17 +1569,17 @@ export default function CicloDetalle() {
 
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Periodo de Carencia (Días de retiro)</label>
-                  <input type="number" step="1" min="0" required value={nuevaAplicacion.periodo_carencia_dias} onChange={e => setNuevaAplicacion({...nuevaAplicacion, periodo_carencia_dias: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Días mínimos antes de cosechar..." />
+                  <input type="number" step="1" min="0" required value={nuevaAplicacion.periodo_carencia_dias} onChange={e => setNuevaAplicacion({ ...nuevaAplicacion, periodo_carencia_dias: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Días mínimos antes de cosechar..." />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Costo Producto (COP)</label>
-                    <input type="number" step="1" min="0" required value={nuevaAplicacion.costo_producto} onChange={e => setNuevaAplicacion({...nuevaAplicacion, costo_producto: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 150000" />
+                    <input type="number" step="1" min="0" required value={nuevaAplicacion.costo_producto} onChange={e => setNuevaAplicacion({ ...nuevaAplicacion, costo_producto: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 150000" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Costo Mano Obra (COP)</label>
-                    <input type="number" step="1" min="0" required value={nuevaAplicacion.costo_mano_obra} onChange={e => setNuevaAplicacion({...nuevaAplicacion, costo_mano_obra: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 80000" />
+                    <input type="number" step="1" min="0" required value={nuevaAplicacion.costo_mano_obra} onChange={e => setNuevaAplicacion({ ...nuevaAplicacion, costo_mano_obra: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 80000" />
                   </div>
                 </div>
 
@@ -1331,10 +1601,14 @@ export default function CicloDetalle() {
               </div>
               <form onSubmit={handleCreateFertilizacion} className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
+<<<<<<< Updated upstream
                   <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevaFertilizacion.fecha} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+=======
+                  <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevaFertilizacion.fecha} onChange={e => setNuevaFertilizacion({ ...nuevaFertilizacion, fecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+>>>>>>> Stashed changes
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Etapa Fenológica</label>
-                    <select value={nuevaFertilizacion.etapa_fenologica} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, etapa_fenologica: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                    <select value={nuevaFertilizacion.etapa_fenologica} onChange={e => setNuevaFertilizacion({ ...nuevaFertilizacion, etapa_fenologica: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
                       {Object.entries(faseToLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                     </select>
                   </div>
@@ -1343,7 +1617,7 @@ export default function CicloDetalle() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Fórmula Química</label>
-                    <select value={nuevaFertilizacion.tipo_fertilizante} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, tipo_fertilizante: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                    <select value={nuevaFertilizacion.tipo_fertilizante} onChange={e => setNuevaFertilizacion({ ...nuevaFertilizacion, tipo_fertilizante: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
                       <option value="NPK_COMPLETO">NPK Completo (15-15-15)</option>
                       <option value="UREA">Urea (46-0-0)</option>
                       <option value="DAP">DAP (18-46-0)</option>
@@ -1352,23 +1626,23 @@ export default function CicloDetalle() {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Fuente Comercial</label>
-                    <input type="text" required value={nuevaFertilizacion.fuente_comercial} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, fuente_comercial: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Ferticol / Monómeros" />
+                    <input type="text" required value={nuevaFertilizacion.fuente_comercial} onChange={e => setNuevaFertilizacion({ ...nuevaFertilizacion, fuente_comercial: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Ferticol / Monómeros" />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Dosis (Kg/Ha)</label>
-                  <input type="number" step="0.1" min="0" required value={nuevaFertilizacion.dosis_kg_ha} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, dosis_kg_ha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 150" />
+                  <input type="number" step="0.1" min="0" required value={nuevaFertilizacion.dosis_kg_ha} onChange={e => setNuevaFertilizacion({ ...nuevaFertilizacion, dosis_kg_ha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 150" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Costo Fertilizante (COP)</label>
-                    <input type="number" step="1" min="0" required value={nuevaFertilizacion.costo_producto} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, costo_producto: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 240000" />
+                    <input type="number" step="1" min="0" required value={nuevaFertilizacion.costo_producto} onChange={e => setNuevaFertilizacion({ ...nuevaFertilizacion, costo_producto: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 240000" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Costo Aplicación (COP)</label>
-                    <input type="number" step="1" min="0" required value={nuevaFertilizacion.costo_mano_obra} onChange={e => setNuevaFertilizacion({...nuevaFertilizacion, costo_mano_obra: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 60000" />
+                    <input type="number" step="1" min="0" required value={nuevaFertilizacion.costo_mano_obra} onChange={e => setNuevaFertilizacion({ ...nuevaFertilizacion, costo_mano_obra: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 60000" />
                   </div>
                 </div>
 
@@ -1390,10 +1664,14 @@ export default function CicloDetalle() {
               </div>
               <form onSubmit={handleCreateRiego} className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
+<<<<<<< Updated upstream
                   <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevoRiego.fecha} onChange={e => setNuevoRiego({...nuevoRiego, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+=======
+                  <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevoRiego.fecha} onChange={e => setNuevoRiego({ ...nuevoRiego, fecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+>>>>>>> Stashed changes
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Fuente Hídrica</label>
-                    <select value={nuevoRiego.fuente_hidrica} onChange={e => setNuevoRiego({...nuevoRiego, fuente_hidrica: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                    <select value={nuevoRiego.fuente_hidrica} onChange={e => setNuevoRiego({ ...nuevoRiego, fuente_hidrica: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
                       <option value="CANAL">Canal de Riego</option>
                       <option value="RIO">Río Directo</option>
                       <option value="POZO">Pozo Profundo</option>
@@ -1404,22 +1682,22 @@ export default function CicloDetalle() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Volumen de Agua (m³)</label>
-                    <input type="number" step="0.1" required value={nuevoRiego.volumen_agua_m3} onChange={e => setNuevoRiego({...nuevoRiego, volumen_agua_m3: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 500" />
+                    <input type="number" step="0.1" required value={nuevoRiego.volumen_agua_m3} onChange={e => setNuevoRiego({ ...nuevoRiego, volumen_agua_m3: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 500" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Espesor Lámina (cm)</label>
-                    <input type="number" step="0.1" required value={nuevoRiego.lamina_agua_cm} onChange={e => setNuevoRiego({...nuevoRiego, lamina_agua_cm: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 5.0" />
+                    <input type="number" step="0.1" required value={nuevoRiego.lamina_agua_cm} onChange={e => setNuevoRiego({ ...nuevoRiego, lamina_agua_cm: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 5.0" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Días de Inundación</label>
-                    <input type="number" step="1" min="0" required value={nuevoRiego.dias_inundacion} onChange={e => setNuevoRiego({...nuevoRiego, dias_inundacion: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 14" />
+                    <input type="number" step="1" min="0" required value={nuevoRiego.dias_inundacion} onChange={e => setNuevoRiego({ ...nuevoRiego, dias_inundacion: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 14" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Estado Drenaje</label>
-                    <select value={nuevoRiego.estado_drenaje} onChange={e => setNuevoRiego({...nuevoRiego, estado_drenaje: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                    <select value={nuevoRiego.estado_drenaje} onChange={e => setNuevoRiego({ ...nuevoRiego, estado_drenaje: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
                       <option value="ABIERTO">Abierto (Compuerta Abierta)</option>
                       <option value="CERRADO">Cerrado (Inundación Retenida)</option>
                     </select>
@@ -1428,7 +1706,7 @@ export default function CicloDetalle() {
 
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Costo Bombeo / Combustible (COP)</label>
-                  <input type="number" step="1" min="0" required value={nuevoRiego.costo_bombeo} onChange={e => setNuevoRiego({...nuevoRiego, costo_bombeo: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 95000" />
+                  <input type="number" step="1" min="0" required value={nuevoRiego.costo_bombeo} onChange={e => setNuevoRiego({ ...nuevoRiego, costo_bombeo: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 95000" />
                 </div>
 
                 <button type="submit" disabled={saving} className="w-full bg-rice-green text-white py-3 rounded-xl font-bold shadow-md shadow-rice-green/35 hover:bg-[#154224] transition-colors">{saving ? <Loader className="animate-spin w-5 h-5 mx-auto" /> : 'Guardar e inyectar costo'}</button>
@@ -1448,10 +1726,14 @@ export default function CicloDetalle() {
                 <button onClick={() => setIsModalCostoOpen(false)} className="p-1 text-gray-400 hover:bg-gray-200 rounded-full"><X className="w-5 h-5" /></button>
               </div>
               <form onSubmit={handleCreateCosto} className="p-6 space-y-4">
+<<<<<<< Updated upstream
                 <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required value={nuevoCosto.fecha} onChange={e => setNuevoCosto({...nuevoCosto, fecha: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+=======
+                <div><label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label><input type="date" required min={siembra?.fecha || ''} value={nuevoCosto.fecha} onChange={e => setNuevoCosto({ ...nuevoCosto, fecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" /></div>
+>>>>>>> Stashed changes
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Categoría Contable</label>
-                  <select value={nuevoCosto.categoria} onChange={e => setNuevoCosto({...nuevoCosto, categoria: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                  <select value={nuevoCosto.categoria} onChange={e => setNuevoCosto({ ...nuevoCosto, categoria: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
                     <option value="MANO_DE_OBRA">Mano de Obra Extraordinaria</option>
                     <option value="ARRENDAMIENTO_TIERRA">Arrendamiento de Tierra / Equipos</option>
                     <option value="TRANSPORTE">Transporte / Acarreo</option>
@@ -1462,11 +1744,11 @@ export default function CicloDetalle() {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Descripción del Gasto</label>
-                  <input type="text" required value={nuevoCosto.descripcion} onChange={e => setNuevoCosto({...nuevoCosto, descripcion: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Compra de sacos de empaque" />
+                  <input type="text" required value={nuevoCosto.descripcion} onChange={e => setNuevoCosto({ ...nuevoCosto, descripcion: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: Compra de sacos de empaque" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Monto Total COP ($)</label>
-                  <input type="number" step="1" min="0" required value={nuevoCosto.monto_total} onChange={e => setNuevoCosto({...nuevoCosto, monto_total: e.target.value})} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 50000" />
+                  <input type="number" step="1" min="0" required value={nuevoCosto.monto_total} onChange={e => setNuevoCosto({ ...nuevoCosto, monto_total: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" placeholder="Ej: 50000" />
                 </div>
 
                 <button type="submit" disabled={saving} className="w-full bg-rice-green text-white py-3 rounded-xl font-bold shadow-md shadow-rice-green/35 hover:bg-[#154224] transition-colors">{saving ? <Loader className="animate-spin w-5 h-5 mx-auto" /> : 'Asentar en Billetera'}</button>
@@ -1475,6 +1757,301 @@ export default function CicloDetalle() {
           </div>
         )}
       </AnimatePresence>
+<<<<<<< Updated upstream
+=======
+
+      {/* MODAL 8: COSECHA */}
+      <AnimatePresence>
+        {isModalCosechaOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+              <div className="px-6 py-4 border-b border-amber-100 flex justify-between items-center bg-amber-50">
+                <h3 className="font-extrabold text-amber-900 flex items-center gap-2"><Wheat className="w-5 h-5" /> Registrar Cosecha Final</h3>
+                <button onClick={() => setIsModalCosechaOpen(false)} className="p-1 text-amber-600 hover:bg-amber-200 rounded-full"><X className="w-5 h-5" /></button>
+              </div>
+              <form onSubmit={handleCreateCosecha} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Fecha de Cosecha</label>
+                  <input type="date" required min={siembra?.fecha || ''} value={nuevaCosecha.fecha} onChange={e => setNuevaCosecha({ ...nuevaCosecha, fecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Producción Obtenida (Kg totales)</label>
+                    <input type="number" step="0.1" min="0" required value={nuevaCosecha.produccion_obtenida_kg} onChange={e => setNuevaCosecha({ ...nuevaCosecha, produccion_obtenida_kg: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Ej: 8500" />
+                  </div>
+                  <div className="bg-amber-100/60 p-3 rounded-xl border border-amber-200 flex flex-col justify-center shadow-inner">
+                    <p className="text-3xs font-extrabold text-amber-700 uppercase tracking-widest leading-none mb-1">Rendimiento (Ton/Ha)</p>
+                    <p className="text-xl font-black text-amber-950 leading-none">
+                      {nuevaCosecha.produccion_obtenida_kg && cicloData?.lote_area_hectareas ?
+                        ((parseFloat(nuevaCosecha.produccion_obtenida_kg) / 1000) / parseFloat(cicloData.lote_area_hectareas)).toFixed(2)
+                        : '0.00'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Humedad (%)</label>
+                    <input type="number" step="0.1" min="0" max="100" required value={nuevaCosecha.humedad_grano_porcentaje} onChange={e => setNuevaCosecha({ ...nuevaCosecha, humedad_grano_porcentaje: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Ej: 22.5" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Impurezas (%)</label>
+                    <input type="number" step="0.1" min="0" max="100" required value={nuevaCosecha.impurezas_porcentaje} onChange={e => setNuevaCosecha({ ...nuevaCosecha, impurezas_porcentaje: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none" placeholder="Ej: 2.0" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Condiciones / Observaciones</label>
+                  <textarea rows="3" value={nuevaCosecha.condiciones_cosecha} onChange={e => setNuevaCosecha({ ...nuevaCosecha, condiciones_cosecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none resize-none" placeholder="Ej: Cosecha con lluvias leves en la tarde..."></textarea>
+                </div>
+
+                <button type="submit" disabled={saving} className="w-full bg-amber-500 text-white py-3 rounded-xl font-bold shadow-md shadow-amber-500/35 hover:bg-amber-600 transition-colors">{saving ? <Loader className="animate-spin w-5 h-5 mx-auto" /> : 'Confirmar Cierre de Cultivo'}</button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL 9: LIQUIDACIÓN DEL MOLINO */}
+      <AnimatePresence>
+        {isModalLiquidacionOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
+            >
+              <div className="px-6 py-4 border-b border-emerald-100 flex justify-between items-center bg-emerald-50">
+                <h3 className="font-extrabold text-emerald-950 flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-emerald-600" /> Registrar Liquidación de Molino
+                </h3>
+                <button
+                  onClick={() => setIsModalLiquidacionOpen(false)}
+                  className="p-1 text-emerald-600 hover:bg-emerald-200 rounded-full"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <form onSubmit={handleCreateLiquidacion} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Fecha de Liquidación / Venta</label>
+                  <input
+                    type="date"
+                    required
+                    value={nuevaLiquidacion.fecha}
+                    onChange={e => setNuevaLiquidacion({ ...nuevaLiquidacion, fecha: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-3xs font-black text-gray-600 uppercase mb-1">Humedad (%)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      required
+                      value={nuevaLiquidacion.humedad_final_porcentaje}
+                      onChange={e => setNuevaLiquidacion({ ...nuevaLiquidacion, humedad_final_porcentaje: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
+                      placeholder="Ej: 14.0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-black text-gray-600 uppercase mb-1">Entero (%)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      required
+                      value={nuevaLiquidacion.porcentaje_grano_entero}
+                      onChange={e => setNuevaLiquidacion({ ...nuevaLiquidacion, porcentaje_grano_entero: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
+                      placeholder="Ej: 60.5"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-black text-gray-600 uppercase mb-1">Quebrado (%)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      required
+                      value={nuevaLiquidacion.porcentaje_grano_quebrado}
+                      onChange={e => setNuevaLiquidacion({ ...nuevaLiquidacion, porcentaje_grano_quebrado: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
+                      placeholder="Ej: 9.5"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Precio por Tonelada (COP)</label>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    required
+                    value={nuevaLiquidacion.precio_tonelada_cop}
+                    onChange={e => setNuevaLiquidacion({ ...nuevaLiquidacion, precio_tonelada_cop: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"
+                    placeholder="Ej: 1800000"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Descuentos Aplicados (COP)</label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      required
+                      value={nuevaLiquidacion.descuentos_aplicados_cop}
+                      onChange={e => setNuevaLiquidacion({ ...nuevaLiquidacion, descuentos_aplicados_cop: e.target.value })}
+                      className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"
+                      placeholder="Ej: 350000"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Ingreso Neto (COP)</label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={formatCOP(calcularIngresoNeto())}
+                      className="w-full px-4 py-2 bg-emerald-50 border-2 border-emerald-200 rounded-xl text-emerald-900 font-black focus:outline-none cursor-not-allowed shadow-inner"
+                    />
+                  </div>
+                </div>
+
+                {cosecha && (
+                  <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl text-xs text-emerald-950 font-bold space-y-1.5 shadow-inner">
+                    <p className="flex justify-between">
+                      <span className="text-emerald-700">Cosecha física:</span>
+                      <span>{new Intl.NumberFormat('es-CO').format(cosecha.produccion_obtenida_kg)} Kg ({(cosecha.produccion_obtenida_kg / 1000).toFixed(2)} Ton)</span>
+                    </p>
+                    {nuevaLiquidacion.precio_tonelada_cop && (
+                      <p className="flex justify-between text-gray-500 font-semibold border-t border-emerald-100 pt-1.5">
+                        <span>Ingreso Bruto Est:</span>
+                        <span>{formatCOP((cosecha.produccion_obtenida_kg / 1000) * parseFloat(nuevaLiquidacion.precio_tonelada_cop))}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Observaciones / Detalles</label>
+                  <textarea
+                    rows="2"
+                    value={nuevaLiquidacion.observaciones}
+                    onChange={e => setNuevaLiquidacion({ ...nuevaLiquidacion, observaciones: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
+                    placeholder="Ej: Pago realizado por Molino Arroz de la Sabana..."
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-md shadow-emerald-600/35 hover:bg-emerald-700 transition-colors"
+                >
+                  {saving ? <Loader className="animate-spin w-5 h-5 mx-auto" /> : 'Asentar y Finalizar Cultivo'}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className={`fixed bottom-6 right-6 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm ${toast.type === 'success' ? 'bg-white text-emerald-800 border-2 border-emerald-500' : 'bg-white text-red-800 border-2 border-red-500'}`}
+          >
+            {toast.type === 'success' ? <CheckCircle2 className="w-6 h-6 text-emerald-500" /> : <AlertTriangle className="w-6 h-6 text-red-500" />}
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* MODAL 9: EDITAR COSTO */}
+      <AnimatePresence>
+        {isModalEditCostoOpen && costoEditando && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+              <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 className="font-extrabold text-gray-900">Editar Registro Financiero</h3>
+                <button onClick={() => setIsModalEditCostoOpen(false)} className="p-1 text-gray-400 hover:bg-gray-200 rounded-full"><X className="w-5 h-5" /></button>
+              </div>
+              <form onSubmit={handleEditCostoSubmit} className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Fecha</label>
+                    <input type="date" required min={siembra?.fecha || ''} value={costoEditando.fecha} onChange={e => setCostoEditando({ ...costoEditando, fecha: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Categoría</label>
+                    <select value={costoEditando.categoria} onChange={e => setCostoEditando({ ...costoEditando, categoria: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none">
+                      {Object.entries(categoriaToLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Descripción / Concepto</label>
+                  <input type="text" required value={costoEditando.descripcion} onChange={e => setCostoEditando({ ...costoEditando, descripcion: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Monto Total (COP)</label>
+                  <input type="number" step="1" min="0" required value={costoEditando.monto_total} onChange={e => setCostoEditando({ ...costoEditando, monto_total: e.target.value })} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rice-emerald outline-none" />
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-3 flex gap-3 text-xs shadow-sm mt-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                  <div>
+                    <strong>Aviso de Auditoría:</strong>
+                    <p className="mt-0.5">Las modificaciones manuales aquí alteran el balance financiero pero no modifican los registros de labores agronómicas vinculadas.</p>
+                  </div>
+                </div>
+
+                <button type="submit" disabled={saving} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-md shadow-emerald-600/35 hover:bg-emerald-700 transition-colors mt-4">{saving ? <Loader className="animate-spin w-5 h-5 mx-auto" /> : 'Guardar Cambios Financieros'}</button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL 10: CONFIRMAR ELIMINAR COSTO */}
+      <AnimatePresence>
+        {costoAEliminar !== null && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-gray-100 p-6 text-center">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-extrabold text-gray-900 mb-2">¿Eliminar Registro Financiero?</h3>
+              <p className="text-sm text-gray-600 mb-6">Esta acción es irreversible y afectará de inmediato el balance financiero de la billetera. Las labores agronómicas asociadas a este costo se mantendrán intactas.</p>
+
+              <div className="flex gap-3">
+                <button onClick={() => setCostoAEliminar(null)} className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">Cancelar</button>
+                <button onClick={confirmDeleteCosto} disabled={saving} className="flex-1 py-3 px-4 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors shadow-md shadow-red-600/30">
+                  {saving ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : 'Sí, Eliminar'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+>>>>>>> Stashed changes
     </div>
   );
 }

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Leaf, Lock, Mail, User, Briefcase, CheckCircle, Loader } from 'lucide-react';
+import { useState } from 'react';
+import { Lock, Mail, User, Briefcase, CheckCircle, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -55,7 +55,7 @@ export default function Register() {
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-rice-emerald rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-rice-green rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
@@ -66,7 +66,7 @@ export default function Register() {
             <CheckCircle className="w-16 h-16 text-rice-emerald mb-4 animate-bounce" />
             <h2 className="text-2xl font-bold text-rice-dark mb-2">¡Registro Exitoso!</h2>
             <p className="text-gray-500 text-sm">
-              Tu cuenta ha sido creada exitosamente.<br/>
+              Tu cuenta ha sido creada exitosamente.<br />
               Redirigiendo al inicio de sesión en unos instantes...
             </p>
           </motion.div>
@@ -88,15 +88,16 @@ export default function Register() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-rice-dark mb-1">Nombre y Apellidos</label>
+                <label htmlFor="nombre_completo" className="block text-xs font-semibold text-rice-dark mb-1">Nombre y Apellidos</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-4 w-4 text-gray-400" />
                   </div>
-                  <input 
-                    type="text" 
+                  <input
+                    id="nombre_completo"
+                    type="text"
                     value={formData.nombre_completo}
-                    onChange={(e) => setFormData({...formData, nombre_completo: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, nombre_completo: e.target.value })}
                     className="block w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rice-emerald outline-none"
                     placeholder="María Muñoz o Juan Ibáñez" required
                   />
@@ -104,15 +105,16 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-rice-dark mb-1">Correo Electrónico</label>
+                <label htmlFor="email" className="block text-xs font-semibold text-rice-dark mb-1">Correo Electrónico</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Mail className="h-4 w-4 text-gray-400" />
                   </div>
-                  <input 
-                    type="email" 
+                  <input
+                    id="email"
+                    type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="block w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rice-emerald outline-none"
                     placeholder="correo@ejemplo.com" required
                   />
@@ -120,14 +122,15 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-rice-dark mb-1">Rol en el Sistema</label>
+                <label htmlFor="rol" className="block text-xs font-semibold text-rice-dark mb-1">Rol en el Sistema</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Briefcase className="h-4 w-4 text-gray-400" />
                   </div>
-                  <select 
+                  <select
+                    id="rol"
                     value={formData.rol}
-                    onChange={(e) => setFormData({...formData, rol: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
                     className="block w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rice-emerald outline-none"
                   >
                     <option value="PRODUCTOR">Productor (Dueño/Gestor)</option>
@@ -138,22 +141,23 @@ export default function Register() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-rice-dark mb-1">Contraseña</label>
+                <label htmlFor="password" className="block text-xs font-semibold text-rice-dark mb-1">Contraseña</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-4 w-4 text-gray-400" />
                   </div>
-                  <input 
-                    type="password" 
+                  <input
+                    id="password"
+                    type="password"
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="block w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-rice-emerald outline-none"
                     placeholder="••••••••" required
                   />
                 </div>
               </div>
 
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
@@ -167,7 +171,7 @@ export default function Register() {
                   </>
                 ) : 'Registrarse'}
               </motion.button>
-              
+
               <div className="text-center mt-4">
                 <span className="text-xs text-gray-500">¿Ya tienes una cuenta? </span>
                 <Link to="/login" className="text-xs text-rice-emerald font-bold hover:underline">Inicia Sesión</Link>
