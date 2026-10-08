@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -7,26 +7,15 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('username');
-    localStorage.removeItem('rol');
-    setUser(null);
-    setToken(null);
-  };
-
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
-
+    
     if (storedToken && storedUser) {
       try {
         setUser(JSON.parse(storedUser));
         setToken(storedToken);
-      } catch {
+      } catch (e) {
         logout();
       }
     }
@@ -46,7 +35,16 @@ export const AuthProvider = ({ children }) => {
     setToken(accessToken);
   };
 
-
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('username');
+    localStorage.removeItem('rol');
+    setUser(null);
+    setToken(null);
+  };
 
   return (
     <AuthContext.Provider value={{ user, token, loading, loginUser, logout, isAuthenticated: !!token }}>
@@ -55,5 +53,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

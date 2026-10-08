@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Users, Tractor, Leaf, TrendingUp,
-  ShieldAlert, CheckCircle2, Trash2, Edit3, PlusCircle,
-  LogOut, MapPin, Activity, ChevronRight, Loader
+import { 
+  Users, Tractor, Leaf, TrendingUp, Lock, Mail, Phone, 
+  ShieldAlert, CheckCircle2, Trash2, Edit3, PlusCircle, 
+  LogOut, MapPin, Activity, UserPlus, ChevronRight, Loader
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
@@ -19,6 +19,7 @@ export default function AdminDashboard() {
   const [metrics, setMetrics] = useState(null);
   const [usersList, setUsersList] = useState([]);
   const [fincasList, setFincasList] = useState([]);
+  const [productoresList, setProductoresList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -37,20 +38,27 @@ export default function AdminDashboard() {
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState('');
 
+  // Cargar datos al montar
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const fetchData = async () => {
     setLoading(true);
     setError('');
     try {
       // Consultas en paralelo usando la instancia centralizada
-      const [resMetrics, resUsers, resFincas] = await Promise.all([
+      const [resMetrics, resUsers, resFincas, resProductores] = await Promise.all([
         api.get('/api/admin/metrics/'),
         api.get('/api/users-gestion/'),
-        api.get('/api/fincas/')
+        api.get('/api/fincas/'),
+        api.get('/api/productores/')
       ]);
 
       setMetrics(resMetrics.data);
       setUsersList(resUsers.data);
       setFincasList(resFincas.data);
+      setProductoresList(resProductores.data);
     } catch (err) {
       console.error(err);
       setError('Error al conectar con el servidor backend de Django.');
@@ -58,11 +66,6 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
-
-  // Cargar datos al montar
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const handleLogout = () => {
     logout();
@@ -105,7 +108,7 @@ export default function AdminDashboard() {
       if (editingUser) {
         const payload = { ...formData };
         if (!payload.password) delete payload.password;
-
+        
         await api.put(`/api/users-gestion/${editingUser.id}/`, payload);
         setSuccessMsg('Usuario actualizado con éxito.');
       } else {
@@ -159,7 +162,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F4F9F6] via-[#FAFDFB] to-[#F0F5F2] text-gray-800 flex relative font-sans">
-
+      
       {/* 1. Sidebar Panel Izquierdo en Tono Claro */}
       <aside className="w-80 bg-white border-r border-emerald-100 p-6 flex flex-col justify-between shrink-0 shadow-sm">
         <div className="space-y-8">
@@ -180,10 +183,11 @@ export default function AdminDashboard() {
           <nav className="space-y-2">
             <button
               onClick={() => setActiveTab('summary')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'summary'
-                  ? 'bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 shadow-sm'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+                activeTab === 'summary' 
+                  ? 'bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 shadow-sm' 
                   : 'text-gray-500 hover:text-[#0D1A12] hover:bg-[#0D1A12]/5'
-                }`}
+              }`}
             >
               <Activity className="w-4 h-4 text-emerald-600" />
               Métricas y Resumen
@@ -191,10 +195,11 @@ export default function AdminDashboard() {
 
             <button
               onClick={() => setActiveTab('users')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'users'
-                  ? 'bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 shadow-sm'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+                activeTab === 'users' 
+                  ? 'bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 shadow-sm' 
                   : 'text-gray-500 hover:text-[#0D1A12] hover:bg-[#0D1A12]/5'
-                }`}
+              }`}
             >
               <Users className="w-4 h-4 text-emerald-600" />
               Gestión de Usuarios
@@ -202,10 +207,11 @@ export default function AdminDashboard() {
 
             <button
               onClick={() => setActiveTab('fincas')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'fincas'
-                  ? 'bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 shadow-sm'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+                activeTab === 'fincas' 
+                  ? 'bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 shadow-sm' 
                   : 'text-gray-500 hover:text-[#0D1A12] hover:bg-[#0D1A12]/5'
-                }`}
+              }`}
             >
               <Tractor className="w-4 h-4 text-emerald-600" />
               Fincas y Productores
@@ -214,7 +220,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Cierre de Sesión */}
-        <button
+        <button 
           onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-600 hover:text-red-700 hover:bg-red-50 transition-all border border-transparent hover:border-red-100"
         >
@@ -225,7 +231,7 @@ export default function AdminDashboard() {
 
       {/* 2. Cuerpo Principal de Contenido */}
       <main className="flex-1 p-8 overflow-y-auto max-w-[calc(100vw-320px)]">
-
+        
         {/* Header Superior del Dashboard */}
         <header className="flex justify-between items-center mb-8 pb-6 border-b border-emerald-100">
           <div>
@@ -246,7 +252,7 @@ export default function AdminDashboard() {
         {/* Notificación de Éxito Flotante */}
         <AnimatePresence>
           {successMsg && (
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -275,11 +281,11 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div>
-
+            
             {/* ==================== PESTAÑA 1: SUMMARY ==================== */}
             {activeTab === 'summary' && metrics && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
+              <motion.div 
+                initial={{ opacity: 0, y: 15 }} 
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-8"
               >
@@ -347,8 +353,8 @@ export default function AdminDashboard() {
                           <span className="text-gray-800">{metrics.roles.PRODUCTOR} / {metrics.total_usuarios}</span>
                         </div>
                         <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-emerald-500 rounded-full transition-all duration-1000"
+                          <div 
+                            className="h-full bg-emerald-500 rounded-full transition-all duration-1000" 
                             style={{ width: `${(metrics.roles.PRODUCTOR / metrics.total_usuarios) * 100}%` }}
                           ></div>
                         </div>
@@ -361,8 +367,8 @@ export default function AdminDashboard() {
                           <span className="text-gray-800">{metrics.roles.TECNICO} / {metrics.total_usuarios}</span>
                         </div>
                         <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500 rounded-full transition-all duration-1000"
+                          <div 
+                            className="h-full bg-blue-500 rounded-full transition-all duration-1000" 
                             style={{ width: `${(metrics.roles.TECNICO / metrics.total_usuarios) * 100}%` }}
                           ></div>
                         </div>
@@ -375,8 +381,8 @@ export default function AdminDashboard() {
                           <span className="text-gray-800">{metrics.roles.ADMIN} / {metrics.total_usuarios}</span>
                         </div>
                         <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-amber-500 rounded-full transition-all duration-1000"
+                          <div 
+                            className="h-full bg-amber-500 rounded-full transition-all duration-1000" 
                             style={{ width: `${(metrics.roles.ADMIN / metrics.total_usuarios) * 100}%` }}
                           ></div>
                         </div>
@@ -395,8 +401,8 @@ export default function AdminDashboard() {
                         ⚠️ **Nota de Seguridad:** Cualquier cambio o eliminación de usuarios impactará directamente en cascada con sus fincas, lotes, análisis de suelo y billeteras de costos en la base de datos relacional.
                       </div>
                     </div>
-
-                    <button
+                    
+                    <button 
                       onClick={() => setActiveTab('users')}
                       className="w-full mt-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 border border-emerald-200 shadow-sm"
                     >
@@ -410,8 +416,8 @@ export default function AdminDashboard() {
 
             {/* ==================== PESTAÑA 2: GESTIÓN DE USUARIOS ==================== */}
             {activeTab === 'users' && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
+              <motion.div 
+                initial={{ opacity: 0, y: 15 }} 
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
@@ -453,21 +459,23 @@ export default function AdminDashboard() {
                             <td className="py-4 px-6 font-bold text-gray-900">{user.nombre_completo}</td>
                             <td className="py-4 px-6 text-gray-600">{user.email}</td>
                             <td className="py-4 px-6">
-                              <span className={`px-2.5 py-1 rounded-full text-3xs font-black uppercase border tracking-wider ${user.rol === 'ADMIN'
-                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              <span className={`px-2.5 py-1 rounded-full text-3xs font-black uppercase border tracking-wider ${
+                                user.rol === 'ADMIN' 
+                                  ? 'bg-amber-50 text-amber-700 border-amber-200' 
                                   : user.rol === 'PRODUCTOR'
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-250 border-emerald-200'
-                                    : 'bg-blue-50 text-blue-700 border-blue-200'
-                                }`}>
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-250 border-emerald-200'
+                                  : 'bg-blue-50 text-blue-700 border-blue-200'
+                              }`}>
                                 {user.rol}
                               </span>
                             </td>
                             <td className="py-4 px-6 text-gray-500">{user.telefono || 'Sin registrar'}</td>
                             <td className="py-4 px-6">
-                              <span className={`px-2 py-0.5 rounded-full text-3xs font-extrabold ${user.is_active
-                                  ? 'bg-emerald-50 text-emerald-700'
+                              <span className={`px-2 py-0.5 rounded-full text-3xs font-extrabold ${
+                                user.is_active 
+                                  ? 'bg-emerald-50 text-emerald-700' 
                                   : 'bg-red-50 text-red-700'
-                                }`}>
+                              }`}>
                                 {user.is_active ? 'Activo' : 'Inactivo'}
                               </span>
                             </td>
@@ -482,10 +490,11 @@ export default function AdminDashboard() {
                               <button
                                 onClick={() => handleDeleteUser(user.id)}
                                 disabled={user.rol === 'ADMIN'}
-                                className={`p-2 rounded-lg transition-all border ${user.rol === 'ADMIN'
+                                className={`p-2 rounded-lg transition-all border ${
+                                  user.rol === 'ADMIN'
                                     ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
                                     : 'bg-red-50 hover:bg-red-100 text-red-600 border-red-200'
-                                  }`}
+                                }`}
                                 title="Eliminar Usuario"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -502,8 +511,8 @@ export default function AdminDashboard() {
 
             {/* ==================== PESTAÑA 3: FINCAS Y PRODUCTORES ==================== */}
             {activeTab === 'fincas' && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
+              <motion.div 
+                initial={{ opacity: 0, y: 15 }} 
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
@@ -560,19 +569,19 @@ export default function AdminDashboard() {
         {showUserModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop Claro con Desenfoque */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
               className="absolute inset-0 bg-[#0D1A12]/40 backdrop-blur-sm"
               onClick={() => setShowUserModal(false)}
             ></motion.div>
 
             {/* Contenedor del Formulario Claro */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95, y: 20 }} 
               className="relative w-full max-w-md bg-white border border-emerald-100 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 z-10"
             >
               <div>
@@ -591,12 +600,11 @@ export default function AdminDashboard() {
               <form onSubmit={handleFormSubmit} className="space-y-4 text-gray-800">
                 {/* Nombre completo */}
                 <div className="space-y-1.5">
-                  <label htmlFor="nombre_completo_input" className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">Nombre y Apellidos</label>
-                  <input
-                    id="nombre_completo_input"
-                    type="text"
+                  <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">Nombre y Apellidos</label>
+                  <input 
+                    type="text" 
                     value={formData.nombre_completo_input}
-                    onChange={(e) => setFormData({ ...formData, nombre_completo_input: e.target.value })}
+                    onChange={(e) => setFormData({...formData, nombre_completo_input: e.target.value})}
                     placeholder="Ej. Juan de Dios Ibáñez"
                     className="w-full bg-[#F8FAF9] border border-gray-250 border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-semibold text-gray-900"
                     required
@@ -605,12 +613,11 @@ export default function AdminDashboard() {
 
                 {/* Email */}
                 <div className="space-y-1.5">
-                  <label htmlFor="email" className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">Correo Electrónico</label>
-                  <input
-                    id="email"
-                    type="email"
+                  <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">Correo Electrónico</label>
+                  <input 
+                    type="email" 
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
                     placeholder="correo@ejemplo.com"
                     className="w-full bg-[#F8FAF9] border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-semibold text-gray-900"
                     required
@@ -620,11 +627,10 @@ export default function AdminDashboard() {
                 {/* Rol y Teléfono */}
                 <div className="grid grid-cols-2 gap-4 text-gray-800">
                   <div className="space-y-1.5">
-                    <label htmlFor="rol" className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">Rol</label>
-                    <select
-                      id="rol"
+                    <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">Rol</label>
+                    <select 
                       value={formData.rol}
-                      onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
+                      onChange={(e) => setFormData({...formData, rol: e.target.value})}
                       className="w-full bg-[#F8FAF9] border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-semibold text-gray-900"
                     >
                       <option value="ADMIN">Administrador</option>
@@ -634,12 +640,11 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="telefono" className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">Teléfono</label>
-                    <input
-                      id="telefono"
-                      type="text"
+                    <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">Teléfono</label>
+                    <input 
+                      type="text" 
                       value={formData.telefono}
-                      onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                      onChange={(e) => setFormData({...formData, telefono: e.target.value})}
                       placeholder="3101234567"
                       className="w-full bg-[#F8FAF9] border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-semibold text-gray-900"
                     />
@@ -648,14 +653,13 @@ export default function AdminDashboard() {
 
                 {/* Contraseña */}
                 <div className="space-y-1.5">
-                  <label htmlFor="password" className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">
+                  <label className="text-2xs font-extrabold text-gray-500 uppercase tracking-wider">
                     {editingUser ? 'Nueva Contraseña (Opcional)' : 'Contraseña'}
                   </label>
-                  <input
-                    id="password"
-                    type="password"
+                  <input 
+                    type="password" 
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
                     placeholder={editingUser ? '••••••••' : 'Mínimo 6 caracteres'}
                     className="w-full bg-[#F8FAF9] border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none transition-all font-semibold text-gray-900"
                     required={!editingUser}
@@ -665,11 +669,11 @@ export default function AdminDashboard() {
                 {/* Estado Activo */}
                 {editingUser && (
                   <div className="flex items-center gap-3 pt-2">
-                    <input
+                    <input 
                       type="checkbox"
                       id="is_active"
                       checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
                       className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
                     />
                     <label htmlFor="is_active" className="text-xs font-bold text-gray-600 cursor-pointer select-none">
@@ -680,14 +684,14 @@ export default function AdminDashboard() {
 
                 {/* Botones */}
                 <div className="flex gap-4 pt-4">
-                  <button
-                    type="button"
+                  <button 
+                    type="button" 
                     onClick={() => setShowUserModal(false)}
                     className="flex-1 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl text-sm font-bold transition-all border border-gray-200"
                   >
                     Cancelar
                   </button>
-                  <button
+                  <button 
                     type="submit"
                     disabled={modalLoading}
                     className="flex-1 py-3 bg-gradient-to-r from-emerald-600 to-[#4C9A2A] hover:from-emerald-500 hover:to-emerald-400 text-white rounded-xl text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2"

@@ -1,4 +1,8 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -8,27 +12,11 @@ import Fincas from './pages/Fincas';
 import Lotes from './pages/Lotes';
 import LoteDetalle from './pages/LoteDetalle';
 import CicloDetalle from './pages/CicloDetalle';
+import AdminDashboard from './pages/AdminDashboard';
+import HistorialProduccion from './pages/HistorialProduccion';
 
 function App() {
   return (
-<<<<<<< Updated upstream
-    <BrowserRouter>
-      <Routes>
-        {/* Rutas Públicas y de Autenticación */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPasswordConfirm />} />
-        
-        {/* Rutas Privadas y Dashboard (Sprint 2) */}
-        <Route path="/fincas" element={<Fincas />} />
-        <Route path="/fincas/:fincaId/lotes" element={<Lotes />} />
-        <Route path="/lotes/:loteId/gestion" element={<LoteDetalle />} />
-        <Route path="/lotes/:loteId/ciclos/:cicloId/gestion" element={<CicloDetalle />} />
-      </Routes>
-    </BrowserRouter>
-=======
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -38,7 +26,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPasswordConfirm />} />
-
+          
           {/* Rutas Protegidas Exclusivas para ADMINISTRADOR */}
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
@@ -58,7 +46,6 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
->>>>>>> Stashed changes
   );
 }
 

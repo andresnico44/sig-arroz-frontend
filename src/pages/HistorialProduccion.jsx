@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import {
-  Tractor, LogOut, Loader, ArrowLeft, Calendar,
-  TrendingUp, Maximize, BarChart2, X,
-  Sparkles, Award, MapPin, Activity, AlertTriangle, ListFilter
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Tractor, LogOut, Loader, ArrowLeft, Calendar, User, 
+  TrendingUp, Maximize, BarChart2, Filter, X, 
+  Sparkles, Award, MapPin, Activity, ArrowUpRight, AlertTriangle, ListFilter
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -18,10 +18,11 @@ export default function HistorialProduccion() {
   const [fincas, setFincas] = useState([]);
   const [lotes, setLotes] = useState([]);
   const [filteredLotes, setFilteredLotes] = useState([]);
-
+  
   // Estados de control
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState('');
+  
   // Filtros seleccionados
   const [selectedFinca, setSelectedFinca] = useState('');
   const [selectedLote, setSelectedLote] = useState('');
@@ -31,10 +32,28 @@ export default function HistorialProduccion() {
   const rol = localStorage.getItem('rol');
   const token = localStorage.getItem('token');
 
+  // Inicialización y carga de filtros y datos
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    // Si viene algún pre-filtro por navegación
+    const stateFincaId = location.state?.fincaId || '';
+    const stateLoteId = location.state?.loteId || '';
+
+    if (stateFincaId) setSelectedFinca(stateFincaId.toString());
+    if (stateLoteId) setSelectedLote(stateLoteId.toString());
+
+    fetchInitialData(stateFincaId, stateLoteId);
+  }, [token]);
+
+  // Cargar fincas, lotes y cosechas de forma paralela
   const fetchInitialData = async (preFincaId, preLoteId) => {
     try {
       setLoading(true);
-
+      setError('');
 
       // 1. Obtener Fincas
       const fincasRes = await axios.get(`${API_BASE_URL}/api/fincas/`, {
@@ -64,7 +83,7 @@ export default function HistorialProduccion() {
       } else if (preFincaId) {
         params.push(`finca_id=${preFincaId}`);
       }
-
+      
       if (params.length > 0) {
         url += `?${params.join('&')}`;
       }
@@ -76,35 +95,18 @@ export default function HistorialProduccion() {
 
     } catch (err) {
       console.error(err);
-
+      setError('No se pudieron cargar los datos del historial de rendimiento.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Inicialización y carga de filtros y datos
-  useEffect(() => {
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
-    // Si viene algún pre-filtro por navegación
-    const stateFincaId = location.state?.fincaId || '';
-    const stateLoteId = location.state?.loteId || '';
-
-    if (stateFincaId) setSelectedFinca(stateFincaId.toString());
-    if (stateLoteId) setSelectedLote(stateLoteId.toString());
-
-    fetchInitialData(stateFincaId, stateLoteId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
-
   // Cargar cosechas filtradas cuando cambie Finca o Lote
   const fetchFilteredHarvests = async (fincaId, loteId) => {
     try {
       setLoading(true);
-
+      setError('');
+      
       let url = `${API_BASE_URL}/api/cosechas/`;
       const queryParams = {};
       if (loteId) {
@@ -120,6 +122,7 @@ export default function HistorialProduccion() {
       setHarvests(response.data);
     } catch (err) {
       console.error(err);
+      setError('Error al recargar el listado de cosechas con los filtros aplicados.');
     } finally {
       setLoading(false);
     }
@@ -167,7 +170,7 @@ export default function HistorialProduccion() {
 
   const totalProductionKg = harvests.reduce((sum, h) => sum + parseFloat(h.produccion_obtenida_kg || 0), 0);
 
-  const averageYield = totalHarvestsCount > 0
+  const averageYield = totalHarvestsCount > 0 
     ? (harvests.reduce((sum, h) => sum + parseFloat(h.rendimiento_ton_ha || 0), 0) / totalHarvestsCount).toFixed(2)
     : '0.00';
 
@@ -185,7 +188,7 @@ export default function HistorialProduccion() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E2F0E6] via-[#FAFDFB] to-[#D5EDDB] text-gray-800 font-sans selection:bg-emerald-600 selection:text-white relative pb-20 overflow-hidden">
-
+      
       {/* Orbes decorativos */}
       <div className="absolute top-20 left-10 w-96 h-96 bg-[#4C9A2A]/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#1E5631]/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -210,7 +213,7 @@ export default function HistorialProduccion() {
               <p className="text-sm font-black text-gray-900">{username || 'Productor'}</p>
               <p className="text-2xs font-extrabold text-[#D4AF37] uppercase tracking-wider bg-[#1E5631] px-2 py-0.5 rounded shadow-sm">{rol}</p>
             </div>
-            <button
+            <button 
               onClick={handleLogout}
               className="p-2.5 text-gray-600 hover:text-red-650 hover:bg-red-50 rounded-xl transition-all border border-gray-150 hover:border-red-200 shadow-sm bg-white"
               title="Cerrar Sesión"
@@ -223,9 +226,9 @@ export default function HistorialProduccion() {
 
       {/* Contenedor principal */}
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8 relative z-10">
-
+        
         {/* Botón de regreso */}
-        <button
+        <button 
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-600 hover:text-emerald-700 font-bold transition-colors group"
         >
@@ -234,13 +237,13 @@ export default function HistorialProduccion() {
         </button>
 
         {/* Banner principal */}
-        <motion.div
+        <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-gradient-to-r from-[#1E5631] via-[#2A6C40] to-[#4C9A2A] text-white border-b-4 border-[#D4AF37] rounded-3xl p-8 shadow-xl relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.08),transparent)] pointer-events-none"></div>
-
+          
           <div className="relative z-10 space-y-4 max-w-3xl">
             <span className="text-2xs font-black text-[#D4AF37] uppercase tracking-widest bg-white/10 border border-white/20 px-3 py-1 rounded-full">
               📊 Historial y Analítica Agronómica
@@ -256,7 +259,7 @@ export default function HistorialProduccion() {
 
         {/* Tarjetas de KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-
+          
           {/* Promedio de Rendimiento */}
           <div className="bg-white border-l-4 border-emerald-600 border border-emerald-100 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all">
             <div className="flex items-center justify-between">
@@ -354,9 +357,9 @@ export default function HistorialProduccion() {
                 <p className="text-2xs text-gray-500 font-bold">Filtra el historial por finca y lote para evaluar rendimientos específicos</p>
               </div>
             </div>
-
+            
             {(selectedFinca || selectedLote) && (
-              <button
+              <button 
                 onClick={handleClearFilters}
                 className="text-2xs font-extrabold text-red-650 hover:underline flex items-center gap-1 bg-red-50 border border-red-200/50 px-2.5 py-1 rounded-lg transition-all text-red-600"
               >
@@ -367,7 +370,7 @@ export default function HistorialProduccion() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+            
             {/* Selector de Finca */}
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Finca:</label>
@@ -404,7 +407,7 @@ export default function HistorialProduccion() {
 
         {/* Tabla / Contenido de Cosechas */}
         <section className="bg-white border border-emerald-100 rounded-3xl shadow-md overflow-hidden">
-
+          
           <div className="px-6 py-5 border-b border-emerald-50 bg-[#FAFDFB] flex items-center justify-between">
             <h3 className="text-lg font-black text-gray-900">Historial Detallado</h3>
             <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full">
@@ -427,7 +430,7 @@ export default function HistorialProduccion() {
               <p className="text-xs text-gray-500 max-w-sm mx-auto mb-6">
                 No se encontraron cosechas que coincidan con los filtros seleccionados o el productor aún no registra cierres.
               </p>
-              <button
+              <button 
                 onClick={() => navigate('/')}
                 className="text-emerald-700 font-bold hover:underline"
               >
@@ -496,7 +499,7 @@ export default function HistorialProduccion() {
                     }
 
                     return (
-                      <motion.tr
+                      <motion.tr 
                         key={harvest.id}
                         whileHover={{ backgroundColor: '#F8FAF9' }}
                         className="transition-colors"
