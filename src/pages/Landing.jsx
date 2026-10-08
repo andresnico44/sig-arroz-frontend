@@ -87,8 +87,9 @@ export default function Landing() {
       </nav>
 
       {/* 2. Hero Section (Dos Columnas) */}
-      <header className="max-w-7xl mx-auto px-6 py-12 md:py-20 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-        <motion.div 
+      <main>
+        <header className="max-w-7xl mx-auto px-6 py-12 md:py-20 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+          <motion.div 
           initial="hidden"
           animate="visible"
           variants={containerVariants}
@@ -177,7 +178,7 @@ export default function Landing() {
             <div className="relative bg-white border border-emerald-100 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-emerald-50">
                 <div>
-                  <h3 className="text-lg font-black text-[#0D1A12]">Simulador de Suelo Activo</h3>
+                  <h2 className="text-lg font-black text-[#0D1A12]">Simulador de Suelo Activo</h2>
                   <p className="text-xs text-gray-500 font-bold">Lógica de Siembra y Bloqueo Agronómico</p>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center">
@@ -188,7 +189,7 @@ export default function Landing() {
               {/* Slider de pH */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm font-bold">
-                  <span className="text-gray-500">Nivel de pH del Suelo:</span>
+                  <label htmlFor="ph-slider" className="text-gray-500">Nivel de pH del Suelo:</label>
                   <span className={`text-xl font-black px-3 py-1 rounded-lg ${
                     isApt ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'
                   }`}>
@@ -197,6 +198,7 @@ export default function Landing() {
                 </div>
 
                 <input 
+                  id="ph-slider"
                   type="range" 
                   min="4.0" 
                   max="8.0" 
@@ -225,7 +227,7 @@ export default function Landing() {
                   >
                     <ShieldAlert className="w-6 h-6 text-red-500 shrink-0" />
                     <div>
-                      <h4 className="font-bold text-red-700">Suelo No Apto (Bloqueo Agronómico)</h4>
+                      <h3 className="font-bold text-red-700">Suelo No Apto (Bloqueo Agronómico)</h3>
                       <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                         El pH es demasiado ácido. El sistema **bloqueará** el inicio de cualquier ciclo productivo de siembra en este lote para evitar pérdidas. Se requiere enmienda mineral (Cal).
                       </p>
@@ -241,7 +243,7 @@ export default function Landing() {
                   >
                     <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
                     <div>
-                      <h4 className="font-bold text-emerald-700">Suelo Óptimo para Arroz</h4>
+                      <h3 className="font-bold text-emerald-700">Suelo Óptimo para Arroz</h3>
                       <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                         El pH se encuentra en el rango saludable (5.5 - 7.5). El sistema **desbloquea** inmediatamente la creación de ciclos de siembra de precisión. ¡Listo para sembrar!
                       </p>
@@ -344,6 +346,7 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* 4. Footer */}
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-emerald-100 flex flex-col md:flex-row items-center justify-between text-xs font-medium text-gray-400 gap-4 relative z-10">
