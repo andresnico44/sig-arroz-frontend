@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Mail, ArrowLeft, CheckCircle, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -34,7 +34,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen bg-rice-light flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-rice-emerald rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-white rounded-3xl shadow-premium p-8 relative z-10 border border-white/50 backdrop-blur-sm"
@@ -48,7 +48,7 @@ export default function ForgotPassword() {
             <CheckCircle className="w-16 h-16 text-rice-emerald mb-4 animate-bounce" />
             <h2 className="text-2xl font-bold text-rice-dark mb-2">¡Revisa tu correo!</h2>
             <p className="text-gray-500 text-sm">
-              Si la cuenta existe, hemos enviado un enlace de recuperación a <br/>
+              Si la cuenta existe, hemos enviado un enlace de recuperación a <br />
               <span className="font-semibold text-rice-dark">{email}</span>
             </p>
           </motion.div>
@@ -67,12 +67,14 @@ export default function ForgotPassword() {
 
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
+                <label htmlFor="email" className="block text-sm font-semibold text-rice-dark mb-2">Correo Electrónico</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-gray-400" />
                   </div>
-                  <input 
-                    type="email" 
+                  <input
+                    id="email"
+                    type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="block w-full pl-10 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-rice-emerald outline-none"
@@ -81,7 +83,7 @@ export default function ForgotPassword() {
                 </div>
               </div>
 
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"

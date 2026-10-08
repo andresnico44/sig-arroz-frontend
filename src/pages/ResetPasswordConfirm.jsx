@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Lock, CheckCircle, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -25,7 +25,7 @@ export default function ResetPasswordConfirm() {
       setError('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
-    
+
     setError('');
     setLoading(true);
 
@@ -65,7 +65,7 @@ export default function ResetPasswordConfirm() {
     <div className="min-h-screen bg-rice-light flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-rice-emerald rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-white rounded-3xl shadow-premium p-8 relative z-10 border border-white/50 backdrop-blur-sm"
@@ -75,7 +75,7 @@ export default function ResetPasswordConfirm() {
             <CheckCircle className="w-16 h-16 text-rice-emerald mb-4 animate-pulse" />
             <h2 className="text-2xl font-bold text-rice-dark mb-2">¡Contraseña Cambiada!</h2>
             <p className="text-gray-500 text-sm">
-              Tu contraseña ha sido restablecida con éxito.<br/>
+              Tu contraseña ha sido restablecida con éxito.<br />
               Serás redirigido al Login en un momento...
             </p>
           </motion.div>
@@ -94,13 +94,14 @@ export default function ResetPasswordConfirm() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-rice-dark mb-1">Nueva Contraseña</label>
+                <label htmlFor="password" className="block text-xs font-semibold text-rice-dark mb-1">Nueva Contraseña</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-4 w-4 text-gray-400" />
                   </div>
-                  <input 
-                    type="password" 
+                  <input
+                    id="password"
+                    type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="block w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-rice-emerald outline-none"
@@ -110,13 +111,14 @@ export default function ResetPasswordConfirm() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-rice-dark mb-1">Confirmar Nueva Contraseña</label>
+                <label htmlFor="confirmPassword" className="block text-xs font-semibold text-rice-dark mb-1">Confirmar Nueva Contraseña</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-4 w-4 text-gray-400" />
                   </div>
-                  <input 
-                    type="password" 
+                  <input
+                    id="confirmPassword"
+                    type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="block w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-rice-emerald outline-none"
@@ -125,7 +127,7 @@ export default function ResetPasswordConfirm() {
                 </div>
               </div>
 
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
