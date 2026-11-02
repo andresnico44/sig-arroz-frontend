@@ -15,6 +15,10 @@ import CicloDetalle from './pages/CicloDetalle';
 import AdminDashboard from './pages/AdminDashboard';
 import HistorialProduccion from './pages/HistorialProduccion';
 
+/**
+ * Enrutador principal de SIG-ARROZ con control centralizado de acceso (RBAC).
+ * Implementa la especificación HU-033 / CR-013 para protección de vistas según rol.
+ */
 function App() {
   return (
     <AuthProvider>
@@ -27,9 +31,12 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPasswordConfirm />} />
           
-          {/* Rutas Protegidas Exclusivas para ADMINISTRADOR */}
+          {/* Rutas Protegidas Exclusivas para ADMINISTRADOR (HU-033 / CR-013) */}
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/usuarios" element={<AdminDashboard />} />
           </Route>
 
           {/* Rutas Protegidas Generales (ADMIN, PRODUCTOR, TECNICO) */}
