@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Tractor, LogOut, Loader, ArrowLeft, Calendar, User, 
   TrendingUp, Maximize, BarChart2, Filter, X, 
-  Sparkles, Award, MapPin, Activity, ArrowUpRight, AlertTriangle, ListFilter
+  Sparkles, Award, MapPin, Activity, ArrowUpRight, AlertTriangle, ListFilter,
+  PieChart, DollarSign, Sprout
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -185,6 +186,31 @@ export default function HistorialProduccion() {
   const formatKg = (kg) => {
     return new Intl.NumberFormat('es-CO').format(kg);
   };
+
+  // --- ANALÍTICA DE RENDIMIENTO Y VARIEDADES PARA GRÁFICOS INTERACTIVOS (HU-037) ---
+  const maxHarvestYield = Math.max(...harvests.map(h => parseFloat(h.rendimiento_ton_ha || 0)), 8.0);
+
+  // Agrupación de rendimiento medio por variedad de arroz
+  const varietyAnalytics = React.useMemo(() => {
+    const map = {};
+    harvests.forEach(h => {
+      const v = h.variedad_arroz || 'Sin Variedad';
+      const y = parseFloat(h.rendimiento_ton_ha || 0);
+      const kg = parseFloat(h.produccion_obtenida_kg || 0);
+      if (!map[v]) {
+        map[v] = { name: v, totalKg: 0, totalYield: 0, count: 0 };
+      }
+      map[v].totalKg += kg;
+      map[v].totalYield += y;
+      map[v].count += 1;
+    });
+    return Object.values(map).map(item => ({
+      ...item,
+      avgYield: (item.totalYield / item.count).toFixed(2)
+    })).sort((a, b) => parseFloat(b.avgYield) - parseFloat(a.avgYield));
+  }, [harvests]);
+
+  const maxVarietyYield = Math.max(...varietyAnalytics.map(v => parseFloat(v.avgYield)), 7.0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E2F0E6] via-[#FAFDFB] to-[#D5EDDB] text-gray-800 font-sans selection:bg-emerald-600 selection:text-white relative pb-20 overflow-hidden">
@@ -404,6 +430,129 @@ export default function HistorialProduccion() {
 
           </div>
         </section>
+
+        {/* SECCIÓN DE GRÁFICOS INTERACTIVOS DE RENDIMIENTO Y VARIEDADES (HU-037) */}
+        {harvests.length > 0 && (
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* Gráfico 1: Comparativa de Rendimiento (Ton/Ha) por Cosecha */}
+            <div className="bg-white/95 backdrop-blur-md border border-emerald-100 rounded-3xl p-6 shadow-md hover:shadow-lg transition-all">
+              <div className="flex items-center justify-between pb-4 border-b border-emerald-50 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+                    <BarChart2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-gray-900">Comparativa de Rendimiento por Ciclo</h3>
+                    <p className="text-3xs text-gray-400 font-bold uppercase tracking-wider">Productividad en Toneladas / Hectárea (Ton/Ha)</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-full">
+                  Meta: ≥ 6.0 Ton/Ha
+                </span>
+              </div>
+
+              <div className="space-y-3.5 pt-1">
+                {harvests.slice(0, 6).map((h) => {
+                  const yieldVal = parseFloat(h.rendimiento_ton_ha || 0);
+                  const percentage = Math.min(Math.round((yieldVal / maxHarvestYield) * 100), 100);
+                  const isOptimal = yieldVal >= 6.0;
+                  const isLow = yieldVal < 4.0;
+
+                  return (
+                    <div key={h.id} className="group">
+                      <div className="flex items-center justify-between text-xs font-bold mb-1">
+                        <span className="text-gray-800 flex items-center gap-1.5 truncate max-w-[220px]">
+                          <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+                          {h.ciclo_nombre} <span className="text-3xs text-gray-400 font-semibold">({h.lote_nombre})</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className={`font-black ${isOptimal ? 'text-emerald-700' : isLow ? 'text-amber-700' : 'text-gray-900'}`}>
+                            {yieldVal.toFixed(2)}
+                          </span>
+                          <span className="text-3xs text-gray-400 uppercase">Ton/Ha</span>
+                        </span>
+                      </div>
+                      <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden p-0.5 shadow-inner">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percentage}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          className={`h-full rounded-full transition-all ${
+                            isOptimal 
+                              ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-sm shadow-emerald-500/20' 
+                              : isLow 
+                                ? 'bg-gradient-to-r from-amber-400 to-amber-500' 
+                                : 'bg-gradient-to-r from-[#4C9A2A] to-emerald-600'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-3xs text-gray-400 font-semibold italic mt-4 pt-3 border-t border-gray-100 text-right">
+                Mostrando las campañas recientes ordenadas cronológicamente
+              </p>
+            </div>
+
+            {/* Gráfico 2: Eficiencia y Rendimiento Promedio por Variedad */}
+            <div className="bg-white/95 backdrop-blur-md border border-emerald-100 rounded-3xl p-6 shadow-md hover:shadow-lg transition-all">
+              <div className="flex items-center justify-between pb-4 border-b border-emerald-50 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700">
+                    <Sprout className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-gray-900">Rendimiento Medio por Variedad de Arroz</h3>
+                    <p className="text-3xs text-gray-400 font-bold uppercase tracking-wider">Eficiencia agronómica comparada de semillas</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-extrabold text-blue-700 bg-blue-50 border border-blue-200/60 px-2.5 py-1 rounded-full">
+                  {varietyAnalytics.length} Variedades
+                </span>
+              </div>
+
+              <div className="space-y-4 pt-1">
+                {varietyAnalytics.map((v) => {
+                  const avg = parseFloat(v.avgYield);
+                  const percentage = Math.min(Math.round((avg / maxVarietyYield) * 100), 100);
+
+                  return (
+                    <div key={v.name} className="bg-gray-50/70 border border-gray-100/90 rounded-2xl p-3 hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+                        <span className="text-gray-900 font-extrabold flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>
+                          {v.name}
+                          <span className="text-3xs font-semibold text-gray-400">({v.count} ciclo{v.count > 1 ? 's' : ''})</span>
+                        </span>
+                        <span className="text-xs font-black text-blue-700">
+                          {v.avgYield} <span className="text-3xs text-gray-400 font-bold uppercase">Ton/Ha Promedio</span>
+                        </span>
+                      </div>
+                      <div className="w-full h-2.5 bg-gray-200/80 rounded-full overflow-hidden shadow-inner">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percentage}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-3xs font-semibold text-gray-400 mt-1.5">
+                        <span>Volumen cosechado total:</span>
+                        <span className="font-bold text-gray-700">{formatKg(v.totalKg)} Kg</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-3xs text-gray-400 font-semibold italic mt-4 pt-3 border-t border-gray-100 text-right">
+                Calculado a partir de los registros consolidados de producción
+              </p>
+            </div>
+
+          </section>
+        )}
 
         {/* Tabla / Contenido de Cosechas */}
         <section className="bg-white border border-emerald-100 rounded-3xl shadow-md overflow-hidden">
