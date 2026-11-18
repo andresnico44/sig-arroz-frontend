@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MapPin, Maximize, Plus, Tractor, LogOut, Loader, ArrowLeft, 
-  Layers, Compass, Droplet, Activity, X, Pencil, Trash2, Search, Filter, TrendingUp 
+  Layers, Droplet, Activity, X, Pencil, Trash2, Search, Filter, TrendingUp 
 } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -28,8 +28,6 @@ export default function Lotes() {
     area_hectareas: '',
     tipo_suelo: 'FRANCO',
     sistema_produccion: 'RIEGO',
-    latitud: '',
-    longitud: '',
     estado: 'ACTIVO'
   });
 
@@ -41,14 +39,9 @@ export default function Lotes() {
     area_hectareas: '',
     tipo_suelo: 'FRANCO',
     sistema_produccion: 'RIEGO',
-    latitud: '',
-    longitud: '',
     estado: 'ACTIVO'
   });
 
-  // GPS Loading indicators (WOW factor)
-  const [gpsLoadingCreate, setGpsLoadingCreate] = useState(false);
-  const [gpsLoadingEdit, setGpsLoadingEdit] = useState(false);
 
   // Filtros Avanzados
   const [searchTerm, setSearchTerm] = useState('');
@@ -136,8 +129,8 @@ export default function Lotes() {
         area_hectareas: areaInput,
         tipo_suelo: nuevoLote.tipo_suelo,
         sistema_produccion: nuevoLote.sistema_produccion,
-        latitud: nuevoLote.latitud ? parseFloat(nuevoLote.latitud) : null,
-        longitud: nuevoLote.longitud ? parseFloat(nuevoLote.longitud) : null,
+        latitud: null,
+        longitud: null,
         estado: nuevoLote.estado
       };
 
@@ -152,8 +145,6 @@ export default function Lotes() {
         area_hectareas: '',
         tipo_suelo: 'FRANCO',
         sistema_produccion: 'RIEGO',
-        latitud: '',
-        longitud: '',
         estado: 'ACTIVO'
       });
     } catch (err) {
@@ -175,8 +166,8 @@ export default function Lotes() {
       area_hectareas: lote.area_hectareas,
       tipo_suelo: lote.tipo_suelo,
       sistema_produccion: lote.sistema_produccion,
-      latitud: lote.latitud || '',
-      longitud: lote.longitud || '',
+      latitud: lote.latitud || null,
+      longitud: lote.longitud || null,
       estado: lote.estado
     });
     setIsEditModalOpen(true);
@@ -245,50 +236,6 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
     } catch (err) {
       console.error("Error al eliminar lote:", err.response?.data);
       alert('Error al intentar eliminar el lote. Verifica tus permisos de red.');
-    }
-  };
-
-  // Geolocalización Nativa para Lotes
-  const capturarGPS = (isEdit = false) => {
-    if (!navigator.geolocation) {
-      alert("Tu navegador no soporta geolocalización.");
-      return;
-    }
-    
-    if (isEdit) {
-      setGpsLoadingEdit(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setEditingLote(prev => ({
-            ...prev,
-            latitud: position.coords.latitude.toFixed(6),
-            longitud: position.coords.longitude.toFixed(6)
-          }));
-          setGpsLoadingEdit(false);
-        },
-        (err) => {
-          console.error(err);
-          setGpsLoadingEdit(false);
-          alert("No se pudo obtener la geolocalización. Otorga permisos de ubicación.");
-        }
-      );
-    } else {
-      setGpsLoadingCreate(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setNuevoLote(prev => ({
-            ...prev,
-            latitud: position.coords.latitude.toFixed(6),
-            longitud: position.coords.longitude.toFixed(6)
-          }));
-          setGpsLoadingCreate(false);
-        },
-        (err) => {
-          console.error(err);
-          setGpsLoadingCreate(false);
-          alert("No se pudo obtener la geolocalización. Otorga permisos de ubicación.");
-        }
-      );
     }
   };
 
@@ -592,22 +539,10 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                     <span className="font-bold text-gray-800 capitalize">{lote.tipo_suelo.toLowerCase()}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs py-1.5 border-b border-emerald-50">
+                  <div className="flex items-center justify-between text-xs py-1.5">
                     <span className="text-gray-500 font-bold flex items-center gap-1.5"><Droplet className="w-4 h-4 text-emerald-600" /> Producción</span>
                     <span className="font-bold text-gray-800 capitalize">{lote.sistema_produccion.toLowerCase()}</span>
                   </div>
-
-                  {lote.latitud && lote.longitud ? (
-                    <div className="flex items-center justify-between text-xs py-1.5">
-                      <span className="text-gray-500 font-bold flex items-center gap-1.5"><Compass className="w-4 h-4 text-emerald-600" /> Ubicación GPS</span>
-                      <span className="font-extrabold text-emerald-700">{Number(lote.latitud).toFixed(4)}, {Number(lote.longitud).toFixed(4)}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between text-xs py-1.5">
-                      <span className="text-gray-500 font-bold flex items-center gap-1.5"><Compass className="w-4 h-4 text-emerald-600" /> Ubicación GPS</span>
-                      <span className="text-gray-400 text-xs font-semibold italic">Sin coordenadas</span>
-                    </div>
-                  )}
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-emerald-50 flex justify-between items-center">
@@ -738,41 +673,6 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                   </div>
                 </div>
 
-                {/* Captura de GPS Nativo */}
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => capturarGPS(false)}
-                    className="w-full py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 hover:border-emerald-300 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    <Compass className={`w-4.5 h-4.5 text-emerald-600 ${gpsLoadingCreate ? 'animate-spin' : ''}`} />
-                    {gpsLoadingCreate ? 'Accediendo a satélites GPS...' : 'Capturar Coordenadas GPS del Teléfono'}
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Latitud GPS</label>
-                    <input 
-                      type="number" step="0.000001"
-                      value={nuevoLote.latitud}
-                      onChange={(e) => setNuevoLote({...nuevoLote, latitud: e.target.value})}
-                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
-                      placeholder="Ej: 4.123456"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Longitud GPS</label>
-                    <input 
-                      type="number" step="0.000001"
-                      value={nuevoLote.longitud}
-                      onChange={(e) => setNuevoLote({...nuevoLote, longitud: e.target.value})}
-                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
-                      placeholder="Ej: -74.987654"
-                    />
-                  </div>
-                </div>
-
                 <div className="mt-8 flex gap-3 pt-4 border-t border-emerald-50">
                   <button 
                     type="button" 
@@ -886,39 +786,6 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                       <option value="RIEGO">Riego</option>
                       <option value="SECANO">Secano</option>
                     </select>
-                  </div>
-                </div>
-
-                {/* Captura de GPS Nativo en Edición */}
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => capturarGPS(true)}
-                    className="w-full py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 hover:border-emerald-300 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    <Compass className={`w-4.5 h-4.5 text-emerald-600 ${gpsLoadingEdit ? 'animate-spin' : ''}`} />
-                    {gpsLoadingEdit ? 'Accediendo a satélites GPS...' : 'Actualizar Coordenadas GPS del Teléfono'}
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Latitud GPS</label>
-                    <input 
-                      type="number" step="0.000001"
-                      value={editingLote.latitud}
-                      onChange={(e) => setEditingLote({...editingLote, latitud: e.target.value})}
-                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-2xs font-extrabold text-gray-500 uppercase tracking-wider mb-1">Longitud GPS</label>
-                    <input 
-                      type="number" step="0.000001"
-                      value={editingLote.longitud}
-                      onChange={(e) => setEditingLote({...editingLote, longitud: e.target.value})}
-                      className="w-full px-4 py-3 bg-[#F8FAF9] border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-semibold text-gray-900"
-                    />
                   </div>
                 </div>
 

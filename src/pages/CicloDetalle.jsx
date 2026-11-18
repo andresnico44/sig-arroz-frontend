@@ -93,9 +93,7 @@ export default function CicloDetalle() {
     tipo_problema: 'PLAGA',
     nombre_comun: '',
     umbral_danio_porcentaje: '',
-    decision_tecnica: '',
-    latitud: '',
-    longitud: ''
+    decision_tecnica: ''
   });
 
   const [nuevaAplicacion, setNuevaAplicacion] = useState({
@@ -331,27 +329,6 @@ export default function CicloDetalle() {
     }
   };
 
-  // Geolocalización Nativa
-  const capturarGPS = () => {
-    if (!navigator.geolocation) {
-      alert("Tu navegador no soporta geolocalización.");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setNuevoMonitoreo({
-          ...nuevoMonitoreo,
-          latitud: position.coords.latitude.toFixed(6),
-          longitud: position.coords.longitude.toFixed(6)
-        });
-      },
-      (error) => {
-        console.error(error);
-        alert("No se pudo obtener la geolocalización. Asegúrate de otorgar permisos.");
-      }
-    );
-  };
-
   // Registrar Monitoreo Fitosanitario (Soporte Offline)
   const handleCreateMonitoreo = async (e) => {
     e.preventDefault();
@@ -361,8 +338,8 @@ export default function CicloDetalle() {
     const payload = {
       ...nuevoMonitoreo,
       umbral_danio_porcentaje: parseFloat(nuevoMonitoreo.umbral_danio_porcentaje),
-      latitud: nuevoMonitoreo.latitud ? parseFloat(nuevoMonitoreo.latitud) : null,
-      longitud: nuevoMonitoreo.longitud ? parseFloat(nuevoMonitoreo.longitud) : null
+      latitud: null,
+      longitud: null
     };
 
     try {
@@ -378,9 +355,7 @@ export default function CicloDetalle() {
         tipo_problema: 'PLAGA',
         nombre_comun: '',
         umbral_danio_porcentaje: '',
-        decision_tecnica: '',
-        latitud: '',
-        longitud: ''
+        decision_tecnica: ''
       });
     } catch (err) {
       console.error("Error al registrar monitoreo, intentando almacenamiento local offline:", err);
@@ -396,9 +371,7 @@ export default function CicloDetalle() {
         tipo_problema: 'PLAGA',
         nombre_comun: '',
         umbral_danio_porcentaje: '',
-        decision_tecnica: '',
-        latitud: '',
-        longitud: ''
+        decision_tecnica: ''
       });
       alert('⚠️ Servidor no disponible. El monitoreo ha sido guardado de forma local (Offline) en tu navegador y podrás sincronizarlo cuando recuperes la conexión.');
     } finally {
@@ -996,7 +969,7 @@ export default function CicloDetalle() {
                 </motion.div>
               )}
 
-              {/* TAB 4: SANIDAD FITOSANITARIA (SOPORTE OFFLINE + GPS) */}
+              {/* TAB 4: SANIDAD FITOSANITARIA (SOPORTE OFFLINE) */}
               {activeTab === 'fitosanitario' && (
                 <motion.div key="fit" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-8">
                   {/* Banner de Sincronización Offline si hay pendientes */}
@@ -1967,7 +1940,7 @@ export default function CicloDetalle() {
         )}
       </AnimatePresence>
 
-      {/* MODAL 3: MONITOREO FITOSANITARIO (CON GPS) */}
+      {/* MODAL 3: MONITOREO FITOSANITARIO (SIMPLIFICADO SIN GPS) */}
       <AnimatePresence>
         {isModalMonitoreoOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
