@@ -4,6 +4,7 @@ import { ArrowLeft, FlaskConical, CalendarClock, Plus, X, Loader, Tractor, LogOu
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
+import BarraDiagnosticoSalud from '../components/BarraDiagnosticoSalud';
 
 export default function LoteDetalle() {
   const { loteId } = useParams();
@@ -198,6 +199,9 @@ export default function LoteDetalle() {
             {fincaData && <p className="text-gray-500 font-medium mt-1">Perteneciente a la finca {fincaData.nombre}</p>}
           </div>
         </div>
+
+        {/* Barra de Diagnóstico Agronómico y Semáforo de Salud (HU-036 / Subtarea 3 / CR-016) */}
+        <BarraDiagnosticoSalud loteId={loteId} />
 
         {/* Guía Rápida Visual */}
         <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 mb-8 flex gap-4 shadow-sm">

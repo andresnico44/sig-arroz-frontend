@@ -7,6 +7,7 @@ import {
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
+import SemaforoSaludLote from '../components/SemaforoSaludLote';
 
 export default function Lotes() {
   const { fincaId } = useParams();
@@ -565,13 +566,19 @@ Esta acción eliminará de forma permanente este lote y TODOS sus análisis de s
                 onClick={() => navigate(`/lotes/${lote.id}/gestion`, { state: { lote, finca } })}
                 className="bg-white border border-emerald-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md relative overflow-hidden group cursor-pointer transition-all duration-300"
               >
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-black text-gray-900 group-hover:text-emerald-700 transition-colors pr-2">
                     {lote.nombre}
                   </h3>
                   <span className={`text-3xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0 ${getEstadoBadge(lote.estado)}`}>
                     {lote.estado === 'ACTIVO' ? 'DISPONIBLE' : lote.estado === 'PREPARACION' ? 'EN PREPARACION' : lote.estado}
                   </span>
+                </div>
+
+                {/* Semáforo Agronómico de Salud del Lote (HU-036 / CR-016) */}
+                <div className="mb-3 flex items-center justify-between bg-gray-50/80 px-2.5 py-1.5 rounded-xl border border-gray-100">
+                  <span className="text-3xs font-bold text-gray-500 uppercase tracking-wider">Salud Cultivo:</span>
+                  <SemaforoSaludLote loteId={lote.id} />
                 </div>
 
                 <div className="space-y-3 mt-4">
